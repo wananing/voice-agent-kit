@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" width="100%" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif">
+<defs><marker id="a-mute" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8b949e"/></marker><marker id="a-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#58a6ff"/></marker><marker id="a-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3fb950"/></marker><marker id="a-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d29922"/></marker></defs>
+<rect x="0" y="0" width="1200" height="700" fill="#0d1117"/>
+<text x="32" y="52" font-size="20" fill="#e6edf3" text-anchor="start" font-weight="600">What happens on a barge-in</text>
+<text x="32" y="80" font-size="14" fill="#8b949e" text-anchor="start">The user presses the button while the agent is talking. Nothing in this picture is code you write.</text>
+<rect x="120" y="104" width="160" height="36" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+<text x="200" y="127" font-size="14" fill="#e6edf3" text-anchor="middle" font-weight="600">Device</text>
+<line x1="200" y1="140" x2="200" y2="672" stroke="#30363d" stroke-width="1.5"/>
+<rect x="520" y="104" width="160" height="36" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+<text x="600" y="127" font-size="14" fill="#e6edf3" text-anchor="middle" font-weight="600">vak</text>
+<line x1="600" y1="140" x2="600" y2="672" stroke="#30363d" stroke-width="1.5"/>
+<rect x="920" y="104" width="160" height="36" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+<text x="1000" y="127" font-size="14" fill="#e6edf3" text-anchor="middle" font-weight="600">Upstream</text>
+<line x1="1000" y1="140" x2="1000" y2="672" stroke="#30363d" stroke-width="1.5"/>
+<line x1="200" y1="176" x2="596" y2="176" stroke="#8b949e" stroke-width="1.5" marker-end="url(#a-mute)"/>
+<text x="400.0" y="168" font-size="12" fill="#e6edf3" text-anchor="middle">turn.start {button} · audio frames · turn.end</text>
+<line x1="600" y1="214" x2="996" y2="214" stroke="#8b949e" stroke-width="1.5" marker-end="url(#a-mute)"/>
+<text x="800.0" y="206" font-size="12" fill="#e6edf3" text-anchor="middle">commit_turn · request_response</text>
+<line x1="1000" y1="252" x2="604" y2="252" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#a-blue)"/>
+<text x="800.0" y="244" font-size="12" fill="#58a6ff" text-anchor="middle">sentence · audio (generation 1)</text>
+<line x1="600" y1="290" x2="204" y2="290" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#a-blue)"/>
+<text x="400.0" y="282" font-size="12" fill="#58a6ff" text-anchor="middle">tts.start · tts.sentence_start · audio, paced</text>
+<line x1="32" y1="320" x2="1168" y2="320" stroke="#d29922" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="40" y="340" font-size="12" fill="#d29922" text-anchor="start">user presses the button mid-sentence</text>
+<rect x="50" y="356" width="300" height="44" rx="6" fill="#3d2306" stroke="#d29922" stroke-width="1.5"/>
+<text x="200" y="375" font-size="12" fill="#e6edf3" text-anchor="middle">stop playback within one tick</text>
+<text x="200" y="392" font-size="12" fill="#8b949e" text-anchor="middle">local play generation + 1</text>
+<line x1="200" y1="424" x2="596" y2="424" stroke="#d29922" stroke-width="1.5" marker-end="url(#a-orange)"/>
+<text x="400.0" y="416" font-size="12" fill="#d29922" text-anchor="middle">playback.interrupted {played_ms} · abort · turn.start</text>
+<rect x="450" y="442" width="300" height="44" rx="6" fill="#3d2306" stroke="#d29922" stroke-width="1.5"/>
+<text x="600" y="461" font-size="12" fill="#e6edf3" text-anchor="middle">generation + 1, flush queued audio</text>
+<text x="600" y="478" font-size="12" fill="#8b949e" text-anchor="middle">context cut at what was actually heard</text>
+<line x1="600" y1="512" x2="996" y2="512" stroke="#d29922" stroke-width="1.5" marker-end="url(#a-orange)"/>
+<text x="800.0" y="504" font-size="12" fill="#d29922" text-anchor="middle">cancel_response · truncate(audio_end_ms)</text>
+<line x1="1000" y1="550" x2="604" y2="550" stroke="#8b949e" stroke-width="1.5" marker-end="url(#a-mute)" stroke-dasharray="5 4"/>
+<text x="800.0" y="542" font-size="12" fill="#e6edf3" text-anchor="middle">late audio (generation 1)</text>
+<text x="614" y="570" font-size="12" fill="#d29922" text-anchor="start">dropped: stale generation</text>
+<line x1="600" y1="600" x2="204" y2="600" stroke="#d29922" stroke-width="1.5" marker-end="url(#a-orange)"/>
+<text x="400.0" y="592" font-size="12" fill="#d29922" text-anchor="middle">flush.start · flush.end · tts.stop {interrupted}</text>
+<line x1="600" y1="638" x2="204" y2="638" stroke="#8b949e" stroke-width="1.5" marker-end="url(#a-mute)"/>
+<text x="400.0" y="630" font-size="12" fill="#e6edf3" text-anchor="middle">turn.closed {interrupted}, then the new turn runs</text>
+</svg>

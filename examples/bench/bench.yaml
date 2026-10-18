@@ -1,0 +1,33 @@
+# vak bench examples/bench/bench.yaml --site "上海 电信家宽" --out result.json
+# 每个候选单独计时，最后按各环节 P50 之和给组合排序（估算，不是端到端实测）。
+# 环境变量没设的候选会被跳过，不影响其他候选。口径见 docs/bench.md。
+
+site: unspecified      # 测试地点 / 网络，会写进结果的 source 字段；--site 优先
+audio: speech_zh.wav   # 自己录一段 2–4 s 的真人中文，16 kHz 单声道 PCM16 WAV
+runs: 5
+warmup: 1              # 每个候选先丢掉的请求数
+
+# 不写就用默认：系统提示词 + 3 句测试句 + 2 个工具（get_weather / set_alarm）
+# system_prompt: ...
+# prompts: [...]
+# sentences: [...]
+
+stt:
+  - {type: volcengine_stt, app_key: "${VOLC_ASR_APP_KEY}", access_key: "${VOLC_ASR_ACCESS_KEY}"}
+  - {type: aliyun_stt, api_key: "${DASHSCOPE_API_KEY}"}
+  - {type: openai_realtime_stt, api_key: "${OPENAI_API_KEY}", model: gpt-4o-transcribe}
+  - {type: deepgram_stt, api_key: "${DEEPGRAM_API_KEY}", language: zh}
+  - {type: funasr, url: "${FUNASR_URL}"}
+
+llm:
+  - {type: ark, api_key: "${ARK_API_KEY}", model: doubao-seed-2-0-mini-260428}
+  - {name: "ark:mini 常规推理", type: ark, api_key: "${ARK_API_KEY}", model: doubao-seed-2-0-mini-260428, extra_body: {service_tier: default}}
+  - {type: bailian, api_key: "${DASHSCOPE_API_KEY}", model: qwen-flash}
+  - {type: bailian, api_key: "${DASHSCOPE_API_KEY}", model: qwen3.6-flash}
+  - {type: openai_compat, api_key: "${OPENAI_API_KEY}", model: gpt-4o-mini}
+
+tts:
+  - {type: volcengine_tts, app_key: "${VOLC_ASR_APP_KEY}", access_key: "${VOLC_ASR_ACCESS_KEY}"}
+  - {type: aliyun_tts, api_key: "${DASHSCOPE_API_KEY}"}
+  - {type: openai_tts, api_key: "${OPENAI_API_KEY}", model: gpt-4o-mini-tts, voice: alloy}
+  - {type: cosyvoice, url: "${COSYVOICE_URL}", voice: 中文女}

@@ -1,0 +1,16 @@
+# spec 06 §6.3 base set; for voice switches and delegation
+rubric_id: tone_consistency
+version: 1
+applies_to: [A, B]
+scope: per_turn
+inputs: [context, latest_bot_reply, heard_text]
+criterion: >
+  当本回合的回复由多段（提示语、本地直念、模型回复、委派结果）拼成时，各段的语气和称呼
+  要一致，不出现割裂；单段回复算通过。
+options:
+  yes: 语气一致，或只有一段
+  no: 各段语气、人设或称呼明显割裂
+  not_applicable: 本回合没有回复
+  continue: 回复只是提示语或承接句，内容还在后面
+reason_required_for: [no]
+method: judge

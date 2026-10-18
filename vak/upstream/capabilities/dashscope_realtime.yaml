@@ -1,0 +1,101 @@
+# Capability declaration for providers/dashscope_realtime.py (Qwen-Omni /
+# Qwen-Audio Realtime). Static fill from qwen-audio-agent's DashScope provider
+# (QAA = qwen-audio-agent/server/src/voice/, catalog =
+# qwen-audio-agent/shared/realtime-model-catalog.mjs) and docs/notes/e2e-models.md
+# Q4 (E2E). Everything behind a cloud endpoint that no open-source client
+# exercises is `unknown` until `vak probe dashscope_realtime` runs.
+adapter: dashscope_realtime
+upstream: { vendor: alibaba_dashscope, model: "qwen-omni-turbo-realtime", api_version: "openai-realtime beta dialect" }
+probed_at: null
+fields:
+  # --- turn (§2.2.1) ---
+  turn.server_detection_disable:
+    { value: unknown, evidence: unknown,
+      refs: ["E2E Q4: no provider sets turn_detection null to disable; docs say VAD params are not exposed", "P0-2 / P0-11 try turn_detection: null"] }
+  turn.segment_only: { value: unknown, evidence: unknown, refs: ["E2E Q4 table: unconfirmed", "P0-2"] }
+  turn.server_interrupt_optional: { value: unknown, evidence: unknown, refs: ["P0-2"] }
+  turn.server_silence_ms: { value: unknown, evidence: unknown, refs: ["P0-3"] }
+  turn.sensitivity_levels:
+    { value: none, evidence: code_read, refs: ["catalog:38-45: only the detector type (semantic_vad / smart_turn) is configured"] }
+  turn.commit_mode: { value: commit_create, evidence: code_read, refs: ["QAA openai-compatible-protocol.mjs (input_audio_buffer.append, response.create)", "spec 04 §2.3 table A [inferred]"] }
+  turn.commit_min_ms: { value: unknown, evidence: unknown, refs: ["P0-4"] }
+  turn.empty_commit_behavior: { value: unknown, evidence: unknown, refs: ["P0-4"] }
+  turn.input_mute: { value: "no", evidence: code_read, refs: ["E2E Q4: mute/unmute exists only in the Doubao dialect"] }
+  # --- history (§2.2.2) ---
+  history.injection:
+    { value: [init_only, per_item, packed_item], evidence: code_read,
+      refs: ["E2E Q4: conversationItems:T; QAA realtime-provider.mjs restoreRecentConversation injects one packed <restored_context> user item"] }
+  history.mid_session_effective: { value: unknown, evidence: unknown, refs: ["P0-9; qwen-audio-agent has no measurement (docs/notes/qwen-audio-agent.md §2.6)"] }
+  history.limits: { value: {}, evidence: unknown, refs: ["QAA caps restored context at 3500 chars (client policy)"] }
+  history.constraints: { value: [], evidence: unknown, refs: [] }
+  history.text_flips_modality: { value: unknown, evidence: unknown, refs: ["P0-9"] }
+  history.tool_calls: { value: unknown, evidence: unknown, refs: ["E2E Q4 table: unconfirmed", "P0-9"] }
+  history.item_id_echo:
+    { value: server_id, evidence: code_read, refs: ["QAA dashscope.mjs conversationItemIdEcho: family !== 'omni' (Omni acknowledges with its own id)"] }
+  history.item_ack: { value: "yes", evidence: code_read, refs: ["QAA realtime-provider.mjs acknowledgesConversationItems default true; conversation.item.created"] }
+  # --- config (§2.2.3) ---
+  config.update.instructions: { value: live_full, evidence: code_read, refs: ["E2E Q4: mutableSession:T, OpenAI-compatible session.update [inferred]"] }
+  config.update.tools: { value: live_full, evidence: code_read, refs: ["same as instructions [inferred]"] }
+  config.update.voice: { value: next_session, evidence: code_read, refs: ["QAA dashscope.mjs: voice only sent when !configured (first session.update)"] }
+  config.update_invalidates_cache: { value: unknown, evidence: unknown, refs: ["P0-6"] }
+  config.append_channels: { value: [], evidence: code_read, refs: ["PC-B §1.3: only GPT-Live has append channels"] }
+  config.update_ack: { value: "yes", evidence: code_read, refs: ["QAA realtime-provider.mjs acknowledgesSessionUpdate default true (session.updated)"] }
+  # --- response (§2.2.4) ---
+  response.client_initiated: { value: "yes", evidence: code_read, refs: ["E2E Q4: clientResponses:T"] }
+  response.overrides:
+    { value: { instructions: replace, modalities: true, tools: false, tool_choice: true, instructions_fallback: none },
+      evidence: code_read,
+      refs: ["QAA dashscope.mjs perResponseInstructions:true; buildResultInjection sends modalities + tool_choice + instructions; tools per response not exercised"] }
+  response.single_slot: { value: "yes", evidence: code_read, refs: ["QAA dashscope.mjs singleResponseSlot:true + classifyError 'another response is in progress'"] }
+  response.say:
+    { value: unknown, evidence: unknown, refs: ["QAA buildSpeakResponse uses conversation:none + instructions; verbatim-ness untested (P0-13)"] }
+  # --- tools (§2.2.5) ---
+  tools.calling: { value: native, evidence: code_read, refs: ["catalog:14-25 functionCalling:true; QAA dashscope.mjs session.tools"] }
+  tools.auto_reply_after_result:
+    { value: "no", evidence: code_read, refs: ["E2E Q4 table automaticToolResponses:F", "KM 2.10 'suitable for results read by us'"] }
+  tools.silent_close: { value: by_omission, evidence: code_read, refs: ["spec 04 §3.7 with auto_reply=no; server-side silence needs P0-1"] }
+  tools.placeholder_accepted: { value: unknown, evidence: unknown, refs: ["P0-12"] }
+  tools.parallel_calls: { value: unknown, evidence: unknown, refs: [] }
+  tools.args_streaming: { value: complete, evidence: code_read, refs: ["QAA realtime-session-runtime.mjs handles response.function_call_arguments.done only"] }
+  # --- truncate / session (§2.2.6-7) ---
+  truncate.mode: { value: unknown, evidence: unknown, refs: ["E2E Q4 table: unconfirmed; conversation.item.truncate is sent in the OpenAI dialect, effect needs P0-14"] }
+  session.resumption: { value: none, evidence: code_read, refs: ["no handle in QAA; reconnect re-injects packed context"] }
+  session.max_secs: { value: unknown, evidence: unknown, refs: [] }
+  session.max_turns_retained: { value: unknown, evidence: unknown, refs: [] }
+  session.expiry_notice: { value: "no", evidence: code_read, refs: ["QAA classifies inactivity errors after the fact (isRecoverableRealtimeInactivityError); no advance notice event"] }
+  session.idle_timeout_secs: { value: unknown, evidence: unknown, refs: ["QAA realtime-errors.mjs: inactivity close exists, duration not in code"] }
+  session.server_compaction: { value: none, evidence: unknown, refs: [] }
+  session.init_ready_signal: { value: ack_event, evidence: code_read, refs: ["session.created then session.updated (QAA completeSessionSetup)"] }
+  # --- usage / errors (§2.2.8-9) ---
+  usage.cache_reported: { value: none, evidence: unknown, refs: ["E2E Q4 table: unconfirmed; P0-7"] }
+  usage.semantics: { value: net, evidence: unknown, refs: [] }
+  errors.code_map:
+    { value:
+        { response_cancel_not_active: { class: benign, reason: cancel_race },
+          conversation_already_has_active_response: { class: benign, reason: cancel_race },
+          input_audio_buffer_commit_empty: { class: benign, reason: empty_commit },
+          "msg:/another response is in progress/": { class: benign, reason: cancel_race },
+          "msg:/user is speaking/": { class: benign, reason: cancel_race },
+          "msg:/data_inspection_failed|inappropriate content/": { class: benign, reason: moderation },
+          "msg:/invalid api key|unauthorized/": { class: fatal, reason: auth },
+          "msg:/arrearage/": { class: fatal, reason: billing },
+          "msg:/free allocated quota exceeded/": { class: fatal, reason: quota },
+          "msg:/model.accessdenied|model_not_found/": { class: fatal, reason: invalid_config } },
+      evidence: code_read, refs: ["QAA dashscope.mjs classifyError (message substrings)", "spec 04 §4.6 rule 8"] }
+  errors.code_stability: { value: message_match, evidence: code_read, refs: ["QAA dashscope.mjs classifyError matches messages, not codes"] }
+  errors.event_correlation: { value: unknown, evidence: unknown, refs: ["P0-8"] }
+  # --- output / uplink (§2.2.10-11) ---
+  output.modalities: { value: [audio, text], evidence: code_read, refs: ["catalog modelCapabilities textOutput/audioOutput; QAA responseModalities"] }
+  output.modality_switch: { value: per_response, evidence: code_read, refs: ["QAA buildResultInjection sends response.modalities per response [inferred effective]"] }
+  output.transcript: { value: "yes", evidence: code_read, refs: ["QAA realtime-presentation-runtime.mjs handles response.audio_transcript.delta"] }
+  output.text_lead_ms: { value: unknown, evidence: unknown, refs: [] }
+  output.audio_format: { value: { encoding: pcm16, sample_rate: 24000 }, evidence: code_read, refs: ["QAA dashscope.mjs outputSampleRate 24000, output_audio_format pcm"] }
+  output.voice_prompt: { value: unknown, evidence: unknown, refs: ["voice cloning IDs exist (omni-voice-list) but are not exercised"] }
+  uplink.audio_format: { value: { encoding: pcm16, sample_rate: 16000 }, evidence: code_read, refs: ["QAA dashscope.mjs inputSampleRate 16000, input_audio_format pcm"] }
+  uplink.faster_than_realtime: { value: unknown, evidence: unknown, refs: ["P0-10"] }
+  uplink.gaps: { value: unknown, evidence: unknown, refs: ["P0-10"] }
+  uplink.streaming_input: { value: streaming, evidence: code_read, refs: ["input_audio_buffer.append"] }
+  # --- cascade-only (§2.2.12) ---
+  cascade.user_transcript: { value: "n/a", evidence: doc, refs: ["spec 04 §2.2.12: non-cascade upstreams fill n/a"] }
+  cascade.pre_speech_hook: { value: "n/a", evidence: doc, refs: ["spec 04 §2.2.12: non-cascade upstreams fill n/a"] }
+  cascade.prefix_cache: { value: "n/a", evidence: doc, refs: ["spec 04 §2.2.12: non-cascade upstreams fill n/a"] }

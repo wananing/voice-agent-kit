@@ -1,0 +1,18 @@
+# spec 06 §6.3 base set
+rubric_id: efficiency
+version: 1
+applies_to: [A, B]
+scope: per_turn
+inputs: [context, latest_bot_reply, heard_text]
+criterion: >
+  当所需信息用户在前文已经给过时，回复不要求用户重复提供（复述确认可以）；
+  不涉及索取信息的回复算通过。
+options:
+  yes: 没有索取已知信息，或根本没有索取信息
+  no: 要求用户重复提供前文已经给过的信息
+  not_applicable: 这一轮用户没有提出请求
+  continue: 回复只是提示语、前导语或承接句，内容还在后面
+leniency:
+  - 按口语意思判，不能只因为转写错误判 no
+reason_required_for: [no]
+method: judge

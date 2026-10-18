@@ -1,0 +1,15 @@
+# spec 06 §6.3 base set; session scope (B must run)
+rubric_id: task_completion
+version: 1
+applies_to: [A, B]
+scope: session
+inputs: [context, latest_bot_reply, tool_calls, tool_results]
+criterion: >
+  当用户在会话中提出了一个可完成的任务时，会话结束前要么完成了任务，要么恰当转接，
+  要么正确地拒绝并说明原因；没有提出任务的会话算通过。
+options:
+  yes: 任务完成、恰当转接或正确拒绝
+  no: 任务未完成且没有转接或合理拒绝
+  not_applicable: 会话中用户没有提出任务
+reason_required_for: [no]
+method: judge

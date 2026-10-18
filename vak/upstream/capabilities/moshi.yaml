@@ -1,0 +1,78 @@
+# Capability declaration for providers/moshi.py (native full duplex, no turns).
+# Values follow docs/architecture.md §3 "原生全双工的降级映射" and the moshi
+# protocol (moshi/rust/protocol.md; moshi/moshi/moshi/server.py;
+# handbook/04-projects/full-duplex/moshi.md = HB; docs/notes/e2e-models.md = E2E).
+# The full_duplex pipeline synthesises turn/response events from audio
+# activity; everything the model structurally lacks is declared, not probed.
+adapter: moshi
+upstream: { vendor: kyutai, model: "moshiko/moshika (CC-BY 4.0)", api_version: "protocol v0 (handshake MT=0)" }
+probed_at: null
+fields:
+  # --- turn ---
+  turn.server_detection_disable: { value: "no", evidence: code_read, refs: ["HB 判停: no external turn detection, model samples pad token each 80 ms step"] }
+  turn.segment_only: { value: "no", evidence: code_read, refs: ["HB: no segment events"] }
+  turn.server_interrupt_optional: { value: "no", evidence: code_read, refs: ["HB 打断: model decides to stop/continue itself; no event"] }
+  turn.server_silence_ms: { value: unknown, evidence: unknown, refs: ["only pad_mult bias (rust/moshi-core lm_generate_multistream.rs)"] }
+  turn.sensitivity_levels: { value: none, evidence: code_read, refs: ["pad_mult is a continuous bias, Rust backend only"] }
+  turn.commit_mode: { value: none, evidence: code_read, refs: ["protocol.md: Control(EndTurn) 'not used in full streaming mode'; server drops non-audio uplink"] }
+  turn.commit_min_ms: { value: unknown, evidence: unknown, refs: ["n/a: nothing is committed"] }
+  turn.empty_commit_behavior: { value: ignored, evidence: code_read, refs: ["no commit exists; adapter answers committed_by_server"] }
+  turn.input_mute: { value: "no", evidence: code_read, refs: ["audio only; gateway can send silence instead"] }
+  # --- history ---
+  history.injection: { value: [], evidence: code_read, refs: ["E2E Q2: no system prompt, text uplink dropped (moshi-server/src/lm.rs:112-119)"] }
+  history.mid_session_effective: { value: "no", evidence: code_read, refs: ["no injection path"] }
+  history.limits: { value: {}, evidence: code_read, refs: ["protocol.md: no such message type; server drops non-audio uplink (server.py recv_loop)"] }
+  history.constraints: { value: [], evidence: code_read, refs: ["protocol.md: no such message type; server drops non-audio uplink (server.py recv_loop)"] }
+  history.text_flips_modality: { value: "no", evidence: code_read, refs: ["no text input"] }
+  history.tool_calls: { value: drop, evidence: code_read, refs: ["no tools"] }
+  history.item_id_echo: { value: none, evidence: code_read, refs: ["no items"] }
+  history.item_ack: { value: "no", evidence: code_read, refs: ["no items"] }
+  # --- config ---
+  config.update.instructions: { value: next_session, evidence: code_read, refs: ["E2E Q2: persona/voice need fine-tuning; nothing updatable in session"] }
+  config.update.tools: { value: next_session, evidence: code_read, refs: ["no tools"] }
+  config.update.voice: { value: next_session, evidence: code_read, refs: ["voice = checkpoint (moshiko/moshika)"] }
+  config.update_invalidates_cache: { value: "no", evidence: code_read, refs: ["no config, no prefix cache concept"] }
+  config.append_channels: { value: [], evidence: code_read, refs: ["protocol.md: no such message type; server drops non-audio uplink (server.py recv_loop)"] }
+  config.update_ack: { value: "no", evidence: code_read, refs: ["protocol.md: no such message type; server drops non-audio uplink (server.py recv_loop)"] }
+  # --- response ---
+  response.client_initiated: { value: "no", evidence: code_read, refs: ["architecture §3: request_response -> unsupported(response.client_initiated)"] }
+  response.overrides: { value: {}, evidence: code_read, refs: ["protocol.md: no such message type; server drops non-audio uplink (server.py recv_loop)"] }
+  response.single_slot: { value: "yes", evidence: code_read, refs: ["one continuous output stream"] }
+  response.say: { value: none, evidence: code_read, refs: ["protocol.md: no such message type; server drops non-audio uplink (server.py recv_loop)"] }
+  # --- tools ---
+  tools.calling: { value: none, evidence: code_read, refs: ["E2E Q2, HB 工具回合: no tool tokens, events or training"] }
+  tools.auto_reply_after_result: { value: "no", evidence: code_read, refs: ["n/a"] }
+  tools.silent_close: { value: none, evidence: code_read, refs: ["n/a"] }
+  tools.placeholder_accepted: { value: "no", evidence: code_read, refs: ["n/a"] }
+  tools.parallel_calls: { value: "no", evidence: code_read, refs: ["n/a"] }
+  tools.args_streaming: { value: complete, evidence: code_read, refs: ["n/a"] }
+  # --- truncate / session ---
+  truncate.mode: { value: none, evidence: code_read, refs: ["HB 打断: no cancel logic, no context truncation; model heard itself anyway"] }
+  session.resumption: { value: none, evidence: code_read, refs: ["HB 会话恢复: disconnect resets (reset_streaming)"] }
+  session.max_secs: { value: 360, evidence: code_read, refs: ["moshi-server/src/lm.rs max_steps=4096 (~5.5 min) and 360 s timeout; moshi-backend stream_both.rs 4500 steps", "FAQ.md:33-39"] }
+  session.max_turns_retained: { value: unknown, evidence: unknown, refs: ["no turns; context window 3000 steps (~240 s) loaders.py"] }
+  session.expiry_notice: { value: "no", evidence: code_read, refs: ["stream just ends"] }
+  session.idle_timeout_secs: { value: unknown, evidence: unknown, refs: [] }
+  session.server_compaction: { value: none, evidence: code_read, refs: ["protocol.md: no such message type; server drops non-audio uplink (server.py recv_loop)"] }
+  session.init_ready_signal: { value: ack_event, evidence: code_read, refs: ["server sends handshake MT=0 first (server.py:165-166; stream_both.rs:265)"] }
+  # --- usage / errors ---
+  usage.cache_reported: { value: none, evidence: code_read, refs: ["no usage messages in protocol"] }
+  usage.semantics: { value: net, evidence: doc, refs: ["n/a"] }
+  errors.code_map: { value: { "msg:/.*/": { class: transient, reason: session_lost } }, evidence: code_read, refs: ["protocol.md Error MT=5 is a free-text string"] }
+  errors.code_stability: { value: message_match, evidence: code_read, refs: ["free-text error payload"] }
+  errors.event_correlation: { value: "no", evidence: code_read, refs: ["protocol.md: no such message type; server drops non-audio uplink (server.py recv_loop)"] }
+  # --- output / uplink ---
+  output.modalities: { value: [audio, text], evidence: code_read, refs: ["MT=1 audio + MT=2 inner-monologue text (own speech only, not user transcript)"] }
+  output.modality_switch: { value: session_fixed, evidence: code_read, refs: ["always both"] }
+  output.transcript: { value: "yes", evidence: code_read, refs: ["MT=2 text is the model's transcript of its own speech (HB)"] }
+  output.text_lead_ms: { value: 80, evidence: code_read, refs: ["KM 2.10 / loaders.py delays: text token one 80 ms step ahead of acoustic codebooks"] }
+  output.audio_format: { value: { encoding: pcm16, sample_rate: 24000 }, evidence: code_read, refs: ["Ogg/Opus 24 kHz mono on the wire (protocol.md), decoded by the adapter"] }
+  output.voice_prompt: { value: "no", evidence: code_read, refs: ["FAQ.md:18-20 voice change needs fine-tuning"] }
+  uplink.audio_format: { value: { encoding: pcm16, sample_rate: 24000 }, evidence: code_read, refs: ["adapter encodes to Ogg/Opus 24 kHz (client.py frame_size 1920 = 80 ms)"] }
+  uplink.faster_than_realtime: { value: degrades, evidence: code_read, refs: ["HB: one step per 80 ms frame, real-time loop; bursts queue in the server"] }
+  uplink.gaps: { value: degrades, evidence: code_read, refs: ["HB: model expects a continuous user stream; silence must be sent, not skipped"] }
+  uplink.streaming_input: { value: streaming, evidence: code_read, refs: ["continuous Opus stream"] }
+  # --- cascade-only ---
+  cascade.user_transcript: { value: "n/a", evidence: doc, refs: ["architecture §3: none"] }
+  cascade.pre_speech_hook: { value: "n/a", evidence: doc, refs: ["spec 04 §2.2.12: non-cascade upstreams fill n/a"] }
+  cascade.prefix_cache: { value: "n/a", evidence: doc, refs: ["spec 04 §2.2.12: non-cascade upstreams fill n/a"] }

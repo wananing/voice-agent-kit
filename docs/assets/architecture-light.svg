@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 660" width="100%" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif">
+<defs><marker id="a-mute" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#656d76"/></marker><marker id="a-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0969da"/></marker><marker id="a-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a7f37"/></marker><marker id="a-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#bc4c00"/></marker></defs>
+<rect x="0" y="0" width="1200" height="660" fill="#ffffff"/>
+<text x="32" y="52" font-size="20" fill="#1f2328" text-anchor="start" font-weight="600">How vak is layered</text>
+<text x="32" y="80" font-size="14" fill="#656d76" text-anchor="start">You write four files. The runtime in the middle is the kit; models and vendors plug in underneath.</text>
+<rect x="32" y="120" width="200" height="380" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.5"/>
+<text x="132" y="150" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">Client</text>
+<text x="132" y="180" font-size="14" fill="#656d76" text-anchor="middle">browser reference</text>
+<text x="132" y="200" font-size="14" fill="#656d76" text-anchor="middle">client, firmware</text>
+<text x="132" y="220" font-size="14" fill="#656d76" text-anchor="middle">or your app</text>
+<text x="132" y="280" font-size="14" fill="#1f2328" text-anchor="middle">protocol va/1</text>
+<text x="132" y="304" font-size="12" fill="#656d76" text-anchor="middle">WebSocket</text>
+<text x="132" y="322" font-size="12" fill="#656d76" text-anchor="middle">JSON control frames</text>
+<text x="132" y="340" font-size="12" fill="#656d76" text-anchor="middle">+ audio frames with</text>
+<text x="132" y="358" font-size="12" fill="#656d76" text-anchor="middle">a 16-byte header</text>
+<line x1="232" y1="200" x2="286" y2="200" stroke="#656d76" stroke-width="1.5" marker-end="url(#a-mute)"/>
+<line x1="286" y1="230" x2="232" y2="230" stroke="#656d76" stroke-width="1.5" marker-end="url(#a-mute)"/>
+<rect x="288" y="120" width="640" height="380" rx="6" fill="#ffffff" stroke="#0969da" stroke-width="1.5"/>
+<text x="304" y="148" font-size="14" fill="#0969da" text-anchor="start" font-weight="600">vak runtime</text>
+<rect x="304" y="164" width="608" height="52" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.5"/>
+<text x="320" y="186" font-size="14" fill="#1f2328" text-anchor="start" font-weight="600">transport</text>
+<text x="320" y="205" font-size="12" fill="#656d76" text-anchor="start">protocol codec · downlink pacing · seq and resume · clock anchors</text>
+<text x="304" y="244" font-size="12" fill="#656d76" text-anchor="start">core: policy lives here, no vendor names allowed</text>
+<rect x="304" y="256" width="112" height="60" rx="6" fill="#ddf4ff" stroke="#0969da" stroke-width="1.5"/>
+<text x="360.0" y="281" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">Turn</text>
+<text x="360.0" y="301" font-size="12" fill="#656d76" text-anchor="middle">state machine</text>
+<rect x="428" y="256" width="112" height="60" rx="6" fill="#ddf4ff" stroke="#0969da" stroke-width="1.5"/>
+<text x="484.0" y="281" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">Output</text>
+<text x="484.0" y="301" font-size="12" fill="#656d76" text-anchor="middle">arbiter</text>
+<rect x="552" y="256" width="112" height="60" rx="6" fill="#ddf4ff" stroke="#0969da" stroke-width="1.5"/>
+<text x="608.0" y="281" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">Tool layer</text>
+<text x="608.0" y="301" font-size="12" fill="#656d76" text-anchor="middle">A0–A3 routes</text>
+<rect x="676" y="256" width="112" height="60" rx="6" fill="#ddf4ff" stroke="#0969da" stroke-width="1.5"/>
+<text x="732.0" y="281" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">Context</text>
+<text x="732.0" y="301" font-size="12" fill="#656d76" text-anchor="middle">and session</text>
+<rect x="800" y="256" width="112" height="60" rx="6" fill="#ddf4ff" stroke="#0969da" stroke-width="1.5"/>
+<text x="856.0" y="281" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">Trace</text>
+<text x="856.0" y="301" font-size="12" fill="#656d76" text-anchor="middle">and eval</text>
+<line x1="560" y1="326" x2="560" y2="360" stroke="#656d76" stroke-width="1.5" marker-end="url(#a-mute)"/>
+<line x1="656" y1="360" x2="656" y2="326" stroke="#656d76" stroke-width="1.5" marker-end="url(#a-mute)"/>
+<text x="552" y="348" font-size="12" fill="#656d76" text-anchor="end">9 primitives</text>
+<text x="664" y="348" font-size="12" fill="#656d76" text-anchor="start">standard events</text>
+<text x="304" y="384" font-size="12" fill="#656d76" text-anchor="start">upstream adapters: translate only, degrade by declared capability</text>
+<rect x="304" y="396" width="143" height="60" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.5"/>
+<text x="375.5" y="421" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">cascade</text>
+<text x="375.5" y="441" font-size="12" fill="#656d76" text-anchor="middle">STT → LLM → TTS</text>
+<rect x="459" y="396" width="143" height="60" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.5"/>
+<text x="530.5" y="421" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">half_cascade</text>
+<text x="530.5" y="441" font-size="12" fill="#656d76" text-anchor="middle">audio LLM → TTS</text>
+<rect x="614" y="396" width="143" height="60" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.5"/>
+<text x="685.5" y="421" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">s2s</text>
+<text x="685.5" y="441" font-size="12" fill="#656d76" text-anchor="middle">realtime model</text>
+<rect x="769" y="396" width="143" height="60" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.5"/>
+<text x="840.5" y="421" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">full_duplex</text>
+<text x="840.5" y="441" font-size="12" fill="#656d76" text-anchor="middle">moshi-style</text>
+<text x="304" y="484" font-size="12" fill="#656d76" text-anchor="start">also in the box: vak new · run · probe · trace · eval · bench</text>
+<rect x="968" y="120" width="200" height="380" rx="6" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.5"/>
+<text x="1068" y="150" font-size="14" fill="#1a7f37" text-anchor="middle" font-weight="600">You write</text>
+<rect x="984" y="172" width="168" height="58" rx="6" fill="#ffffff" stroke="#1a7f37" stroke-width="1.5"/>
+<text x="1068" y="197" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">agent.yaml</text>
+<text x="1068" y="216" font-size="12" fill="#656d76" text-anchor="middle">pipeline, providers</text>
+<rect x="984" y="250" width="168" height="58" rx="6" fill="#ffffff" stroke="#1a7f37" stroke-width="1.5"/>
+<text x="1068" y="275" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">persona.yaml</text>
+<text x="1068" y="294" font-size="12" fill="#656d76" text-anchor="middle">who the agent is</text>
+<rect x="984" y="328" width="168" height="58" rx="6" fill="#ffffff" stroke="#1a7f37" stroke-width="1.5"/>
+<text x="1068" y="353" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">tools.py</text>
+<text x="1068" y="372" font-size="12" fill="#656d76" text-anchor="middle">@tool functions</text>
+<rect x="984" y="406" width="168" height="58" rx="6" fill="#ffffff" stroke="#1a7f37" stroke-width="1.5"/>
+<text x="1068" y="431" font-size="14" fill="#1f2328" text-anchor="middle" font-weight="600">state_schema.yaml</text>
+<text x="1068" y="450" font-size="12" fill="#656d76" text-anchor="middle">what it must track</text>
+<line x1="968" y1="310" x2="930" y2="310" stroke="#1a7f37" stroke-width="1.5" marker-end="url(#a-green)"/>
+<line x1="608" y1="500" x2="608" y2="534" stroke="#656d76" stroke-width="1.5" marker-end="url(#a-mute)"/>
+<rect x="32" y="536" width="1136" height="92" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.5"/>
+<text x="48" y="562" font-size="14" fill="#1f2328" text-anchor="start" font-weight="600">Providers</text>
+<text x="140" y="562" font-size="12" fill="#0969da" text-anchor="start" font-weight="600">STT</text>
+<text x="180" y="562" font-size="12" fill="#656d76" text-anchor="start">Volcengine · Aliyun · OpenAI Realtime · Deepgram · AssemblyAI · FunASR</text>
+<text x="140" y="584" font-size="12" fill="#0969da" text-anchor="start" font-weight="600">LLM</text>
+<text x="180" y="584" font-size="12" fill="#656d76" text-anchor="start">any OpenAI-compatible · Volcengine Ark · Aliyun Bailian</text>
+<text x="140" y="606" font-size="12" fill="#0969da" text-anchor="start" font-weight="600">TTS</text>
+<text x="180" y="606" font-size="12" fill="#656d76" text-anchor="start">Volcengine (token-level) · Aliyun CosyVoice · OpenAI · self-hosted CosyVoice</text>
+<text x="780" y="562" font-size="12" fill="#0969da" text-anchor="start" font-weight="600">S2S</text>
+<text x="820" y="562" font-size="12" fill="#656d76" text-anchor="start">OpenAI Realtime · Qwen-Omni Realtime</text>
+<text x="780" y="584" font-size="12" fill="#0969da" text-anchor="start" font-weight="600">Duplex</text>
+<text x="830" y="584" font-size="12" fill="#656d76" text-anchor="start">moshi</text>
+</svg>

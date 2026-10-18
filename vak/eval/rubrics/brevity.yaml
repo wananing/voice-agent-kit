@@ -1,0 +1,17 @@
+# spec 06 §6.3 base set; rule-based (§6.1 rule 10). Sentence limits are suggested values.
+rubric_id: brevity
+version: 1
+applies_to: [A, B]
+scope: per_turn
+inputs: [latest_bot_reply, heard_text]
+criterion: >
+  回复的语音部分不超过规定句数：无屏设备（A）不超过 2 句，有屏 App（B）语音部分不超过 3 句。
+options:
+  yes: 句数在上限内
+  no: 句数超过上限
+  not_applicable: 本回合没有语音回复
+reason_required_for: [no]
+method: rule
+rule:
+  kind: max_sentences
+  max_sentences: {A: 2, B: 3}

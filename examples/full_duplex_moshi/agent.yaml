@@ -1,0 +1,28 @@
+# voice-agent-kit agent 配置。字段说明见 docs/architecture.md §6。
+name: full_duplex_moshi
+profile: B        # A 无屏设备 / B 有屏 App
+mode: open_mic              # ptt 按键 / open_mic 开放麦（需要客户端 AEC）
+pipeline: full_duplex      # cascade / half_cascade / s2s / full_duplex
+language: zh
+voice: default
+
+providers:
+  full_duplex:
+    type: moshi
+    url: "${MOSHI_URL:-ws://localhost:8998}"
+  local_tts:
+    type: mock
+
+persona: persona.yaml
+state_schema: state_schema.yaml
+tools: tools                # 本目录下 tools.py 里带 @tool 的函数
+cues: cues                  # 预合成提示语目录（wav），没有也能跑（用合成提示音）
+
+server:
+  host: 0.0.0.0
+  port: 8765
+  serve_web_client: true    # 在 http://host:port/ 提供 clients/web 参考客户端
+  trace_dir: traces
+
+# 可调参数覆盖，键是 vak/core/defaults.py 里的点路径
+tuning: {}

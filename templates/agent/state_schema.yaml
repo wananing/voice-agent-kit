@@ -1,0 +1,8 @@
+# 状态块 schema（规范 05 §2.3）。结构固定、顺序固定；每个字段声明生效层。
+schema_version: "1"
+fields:
+  - { name: stage,        label: 当前阶段,     layer: immediate }
+  - { name: selected,     label: 用户已选择,   layer: immediate }
+  - { name: user_name,    label: 用户称呼,     layer: lazy }
+  - { name: progress,     label: 进度,         layer: lazy }
+  - { name: last_topic,   label: 刚说到的点,   layer: lazy }

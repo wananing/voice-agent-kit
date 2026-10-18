@@ -1,0 +1,74 @@
+# Declaration for providers/mock.py MockRealtimeS2S. Fully "probed": the
+# mock is deterministic and these values describe its default behaviour;
+# tests override single fields through mock_caps(**overrides).
+adapter: mock_s2s
+upstream: { vendor: mock, model: "mock-realtime", api_version: "vak-0.1" }
+probed_at: "2026-10-11"
+fields:
+  turn.server_detection_disable: { value: "yes", evidence: probed, refs: ["mock"] }
+  turn.segment_only: { value: "yes", evidence: probed, refs: ["mock"] }
+  turn.server_interrupt_optional: { value: "yes", evidence: probed, refs: ["mock"] }
+  turn.server_silence_ms: { value: 500, evidence: probed, refs: ["mock"] }
+  turn.sensitivity_levels: { value: none, evidence: probed, refs: ["mock"] }
+  turn.commit_mode: { value: commit_create, evidence: probed, refs: ["mock"] }
+  turn.commit_min_ms: { value: 100, evidence: probed, refs: ["mock"] }
+  turn.empty_commit_behavior: { value: "error(input_audio_buffer_commit_empty)", evidence: probed, refs: ["mock"] }
+  turn.input_mute: { value: "no", evidence: probed, refs: ["mock"] }
+  history.injection: { value: [init_only, per_item], evidence: probed, refs: ["mock"] }
+  history.mid_session_effective: { value: "no", evidence: probed, refs: ["mock"] }
+  history.limits: { value: { max_items: 128 }, evidence: probed, refs: ["mock"] }
+  history.constraints: { value: [], evidence: probed, refs: ["mock"] }
+  history.text_flips_modality: { value: "yes", evidence: probed, refs: ["mock"] }
+  history.tool_calls: { value: keep, evidence: probed, refs: ["mock"] }
+  history.item_id_echo: { value: server_id, evidence: probed, refs: ["mock"] }
+  history.item_ack: { value: "yes", evidence: probed, refs: ["mock"] }
+  config.update.instructions: { value: live_full, evidence: probed, refs: ["mock"] }
+  config.update.tools: { value: live_full, evidence: probed, refs: ["mock"] }
+  config.update.voice: { value: live_full, evidence: probed, refs: ["mock"] }
+  config.update_invalidates_cache: { value: "yes", evidence: probed, refs: ["mock"] }
+  config.append_channels: { value: [], evidence: probed, refs: ["mock"] }
+  config.update_ack: { value: "yes", evidence: probed, refs: ["mock"] }
+  response.client_initiated: { value: "yes", evidence: probed, refs: ["mock"] }
+  response.overrides: { value: { instructions: replace, modalities: true, tools: true, tool_choice: true }, evidence: probed, refs: ["mock"] }
+  response.single_slot: { value: "yes", evidence: probed, refs: ["mock"] }
+  response.say: { value: none, evidence: probed, refs: ["mock"] }
+  tools.calling: { value: native, evidence: probed, refs: ["mock"] }
+  tools.auto_reply_after_result: { value: "no", evidence: probed, refs: ["mock"] }
+  tools.silent_close: { value: by_omission, evidence: probed, refs: ["mock"] }
+  tools.placeholder_accepted: { value: "yes", evidence: probed, refs: ["mock"] }
+  tools.parallel_calls: { value: "no", evidence: probed, refs: ["mock"] }
+  tools.args_streaming: { value: complete, evidence: probed, refs: ["mock"] }
+  truncate.mode: { value: audio_ms, evidence: probed, refs: ["mock"] }
+  session.resumption: { value: handle, evidence: probed, refs: ["mock"] }
+  session.max_secs: { value: 1800, evidence: probed, refs: ["mock"] }
+  session.max_turns_retained: { value: 20, evidence: probed, refs: ["mock"] }
+  session.expiry_notice: { value: "yes", evidence: probed, refs: ["mock"] }
+  session.idle_timeout_secs: { value: 300, evidence: probed, refs: ["mock"] }
+  session.server_compaction: { value: none, evidence: probed, refs: ["mock"] }
+  session.init_ready_signal: { value: ack_event, evidence: probed, refs: ["mock"] }
+  usage.cache_reported: { value: cached_tokens, evidence: probed, refs: ["mock"] }
+  usage.semantics: { value: net, evidence: probed, refs: ["mock"] }
+  errors.code_map:
+    value:
+      rate_limit_exceeded: { class: transient, reason: throttled }
+      invalid_api_key: { class: fatal, reason: auth }
+      conversation_already_has_active_response: { class: benign, reason: cancel_race }
+      input_audio_buffer_commit_empty: { class: benign, reason: empty_commit }
+      context_length_exceeded: { class: context_overflow, reason: unknown }
+    evidence: probed
+    refs: ["mock"]
+  errors.code_stability: { value: stable_codes, evidence: probed, refs: ["mock"] }
+  errors.event_correlation: { value: "yes", evidence: probed, refs: ["mock"] }
+  output.modalities: { value: [audio, text], evidence: probed, refs: ["mock"] }
+  output.modality_switch: { value: per_response, evidence: probed, refs: ["mock"] }
+  output.transcript: { value: "yes", evidence: probed, refs: ["mock"] }
+  output.text_lead_ms: { value: 40, evidence: probed, refs: ["mock"] }
+  output.audio_format: { value: { encoding: pcm16, sample_rate: 24000 }, evidence: probed, refs: ["mock"] }
+  output.voice_prompt: { value: "no", evidence: probed, refs: ["mock"] }
+  uplink.audio_format: { value: { encoding: pcm16, sample_rate: 16000 }, evidence: probed, refs: ["mock"] }
+  uplink.faster_than_realtime: { value: tolerated, evidence: probed, refs: ["mock"] }
+  uplink.gaps: { value: tolerated, evidence: probed, refs: ["mock"] }
+  uplink.streaming_input: { value: streaming, evidence: probed, refs: ["mock"] }
+  cascade.user_transcript: { value: n/a, evidence: probed, refs: ["mock"] }
+  cascade.pre_speech_hook: { value: n/a, evidence: probed, refs: ["mock"] }
+  cascade.prefix_cache: { value: n/a, evidence: probed, refs: ["mock"] }

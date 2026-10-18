@@ -1,0 +1,1824 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voice-agent-kit/schemas/trace.schema.json",
+  "title": "TurnTrace",
+  "description": "One record per turn, unique by (session_id, turn_id). Field names, enums and units verbatim from spec 06 §3. All *_at_ms are integer ms relative to the primary anchor T0 (anchors.primary); *_ms are durations. Not applicable -> omit; should-have-measured-but-missing -> null (spec 06 §2.1 r5). M fields are `required`; M-A / M-B via if/then on `profile`; C fields where the condition is expressible are in allOf.",
+  "type": "object",
+  "properties": {
+    "trace_schema_version": {
+      "type": "string",
+      "description": "spec 06 version, e.g. 06-v0.1"
+    },
+    "profile": {
+      "enum": [
+        "A",
+        "B"
+      ]
+    },
+    "session_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "user_session_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "turn_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[cs][0-9]+$"
+    },
+    "generation": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "turn_source": {
+      "enum": [
+        "button",
+        "wake",
+        "vad",
+        "text",
+        "event",
+        null
+      ]
+    },
+    "turn_input": {
+      "enum": [
+        "typed",
+        "tap",
+        "test",
+        null
+      ],
+      "description": "C: turn_source=text"
+    },
+    "t0_epoch_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "gateway wall clock at T0, Unix ms"
+    },
+    "device_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "user_id_hash": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "pipeline": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provider": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "model": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "prompt_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "route": {
+      "enum": [
+        "s2s",
+        "cascade",
+        "half_cascade",
+        null
+      ],
+      "description": "M-B"
+    },
+    "risk_level": {
+      "enum": [
+        "low",
+        "high",
+        null
+      ],
+      "description": "M-B"
+    },
+    "gateway_build": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "turn_kind": {
+      "enum": [
+        "chat",
+        "tool_verbatim",
+        "tool_compose",
+        "tool_write",
+        "event",
+        "ui_input",
+        "error",
+        null
+      ]
+    },
+    "user_text": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "action": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "action name; 'none' when no action"
+    },
+    "decision_layer": {
+      "enum": [
+        "rule",
+        "model",
+        "correction",
+        "gate",
+        "stage",
+        null
+      ]
+    },
+    "tool_calls": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "call_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "args": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "presentation": {
+            "enum": [
+              "verbatim",
+              "model",
+              "screen",
+              "silent",
+              null
+            ]
+          },
+          "is_write": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "latency_class": {
+            "enum": [
+              "ms",
+              "seconds",
+              "background",
+              null
+            ]
+          },
+          "tool_route": {
+            "enum": [
+              "A0",
+              "A1",
+              "A2",
+              "A3",
+              "silent",
+              null
+            ]
+          },
+          "route_fallback_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "phase": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "generation": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "gate_result": {
+            "enum": [
+              "pass",
+              "intent_mismatch",
+              "utterance_not_explicit",
+              "backend_state",
+              "not_available_in_phase",
+              "n_a",
+              null
+            ]
+          },
+          "late_result_dropped": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "speculation_hit": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "started_at_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "time point, integer ms relative to T0 (may be negative)"
+          },
+          "done_at_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "time point, integer ms relative to T0 (may be negative)"
+          },
+          "tool_exec_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "duration, integer ms"
+          },
+          "reply_required": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "closed_by": {
+            "enum": [
+              "result",
+              "interrupted",
+              "cancelled",
+              "progress",
+              "superseded",
+              "duplicate",
+              null
+            ],
+            "description": "spec 03 §4.2: six values, do not add or remove"
+          },
+          "settled_at_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "time point, integer ms relative to T0 (may be negative)"
+          },
+          "interrupt_phase": {
+            "enum": [
+              "received",
+              "running",
+              "done_not_sent",
+              "sent_speaking",
+              "progress_closed",
+              "narration",
+              "delegating",
+              "n_a",
+              null
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "call_id",
+          "name",
+          "args",
+          "presentation",
+          "is_write",
+          "latency_class",
+          "tool_route",
+          "generation",
+          "late_result_dropped",
+          "started_at_ms",
+          "done_at_ms",
+          "tool_exec_ms",
+          "reply_required",
+          "closed_by",
+          "settled_at_ms"
+        ],
+        "description": "spec 06 §3.5: one item per tool call"
+      }
+    },
+    "slots": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "entity_resolution": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "speak_mode": {
+      "enum": [
+        "verbatim",
+        "model",
+        "delegated",
+        "screen",
+        "none",
+        null
+      ],
+      "description": "C: tool turns"
+    },
+    "write_gate": {
+      "enum": [
+        "passed",
+        "blocked",
+        "n_a",
+        null
+      ],
+      "description": "C: write operations"
+    },
+    "stage": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "visible_actions_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "form_version_before": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "form_version_after": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "anchors": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "primary": {
+          "enum": [
+            "release",
+            "endpoint",
+            "audio_end",
+            "tap",
+            "event",
+            null
+          ]
+        },
+        "audio_end_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "T_ae: end of last voiced frame, excluding trailing silence"
+        },
+        "release_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "T_rel: button release"
+        },
+        "endpoint_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "T_ep: endpoint decision"
+        },
+        "tap_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "event_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "clock_quality": {
+          "enum": [
+            "synced",
+            "rx_minus_half_rtt",
+            "gateway_rx",
+            null
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "primary",
+        "clock_quality"
+      ]
+    },
+    "latency": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "sound_first_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "T0 -> first non-silent audio sent"
+        },
+        "content_first_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "T0 -> first audio answering the request sent"
+        },
+        "content_first_ready_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "queue_wait_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "duration, integer ms"
+        },
+        "cue_to_content_gap_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "duration, integer ms"
+        },
+        "endpoint_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "T_ep - T_ae"
+        },
+        "ptt_tail_silence_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "T_rel - T_ae"
+        },
+        "stt_final_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "seg": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "stt_first_word_ms": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "duration, integer ms"
+            },
+            "vad_ms": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "duration, integer ms"
+            },
+            "llm_ms": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "duration, integer ms"
+            },
+            "tts_start_ms": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "duration, integer ms"
+            },
+            "first_segment_ms": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "duration, integer ms"
+            }
+          },
+          "additionalProperties": false
+        },
+        "fc_received_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "pre_tool_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "duration, integer ms"
+        },
+        "tool_exec_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "duration, integer ms"
+        },
+        "tool_done_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "output_sent_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "post_tool_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "duration, integer ms"
+        },
+        "regen_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "duration, integer ms"
+        },
+        "local_speech_first_audio_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "model_speech_first_audio_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "sound_first_played_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "content_first_played_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "playback_started_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "playback_ended_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "time point, integer ms relative to T0 (may be negative)"
+        },
+        "ui_feedback_first_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "M-B"
+        },
+        "ui_content_first_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "M-B"
+        },
+        "content_kind": {
+          "enum": [
+            "answer",
+            "progress",
+            "none",
+            null
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "sound_first_at_ms",
+        "content_first_at_ms",
+        "content_kind"
+      ]
+    },
+    "session_seq": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "rebuild_reason": {
+      "enum": [
+        "none",
+        "disconnect",
+        "upstream_error",
+        "context_overflow",
+        "state_change",
+        "turn_limit",
+        "scheduled",
+        "modality",
+        "app_resume",
+        null
+      ]
+    },
+    "history_format": {
+      "enum": [
+        "pairs",
+        "packed",
+        "pairs_tools_as_text",
+        null
+      ],
+      "description": "C: rebuilt this turn"
+    },
+    "history_scope": {
+      "enum": [
+        "full",
+        "truncated",
+        "summary_recent",
+        null
+      ],
+      "description": "C: rebuilt this turn"
+    },
+    "history_items": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "handoff_start_at_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "time point, integer ms relative to T0 (may be negative)"
+    },
+    "handoff_done_at_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "time point, integer ms relative to T0 (may be negative)"
+    },
+    "state_block_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "state_update": {
+      "enum": [
+        "none",
+        "immediate",
+        "lazy",
+        null
+      ]
+    },
+    "cached_input_tokens": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "uncached_input_tokens": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "reply_modality": {
+      "enum": [
+        "audio",
+        "text_only",
+        "mixed",
+        "none",
+        null
+      ]
+    },
+    "turns_in_upstream_session": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "press_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "duration, integer ms"
+    },
+    "speech_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "duration, integer ms"
+    },
+    "server_vad_segments_in_turn": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "compressed_silence_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "duration, integer ms"
+    },
+    "dropped_short_press": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "smart_turn_prob": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "endpoint_wait_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "duration, integer ms"
+    },
+    "supplement_window_hit": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "interrupted": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "interrupt_at_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "time point, integer ms relative to T0 (may be negative)"
+    },
+    "interrupt_source": {
+      "enum": [
+        "button",
+        "vad",
+        "wake",
+        "text",
+        "link",
+        "critical",
+        "guardrail",
+        null
+      ]
+    },
+    "false_interrupt_filtered": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "outputs": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "request_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "origin": {
+            "enum": [
+              "model",
+              "tool_result",
+              "delegated_result",
+              "cue",
+              "task_progress",
+              "task_result",
+              "reminder",
+              "device_event",
+              "system_notice",
+              "system_exit",
+              null
+            ]
+          },
+          "kind": {
+            "enum": [
+              "cue",
+              "speech",
+              "narration",
+              null
+            ]
+          },
+          "content_role": {
+            "enum": [
+              "filler",
+              "answer",
+              "progress",
+              "error",
+              null
+            ]
+          },
+          "generation": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "sentence_id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "sent_at_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "time point, integer ms relative to T0 (may be negative)"
+          },
+          "played_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "duration, integer ms"
+          },
+          "status": {
+            "enum": [
+              "played",
+              "truncated",
+              "flushed",
+              "dropped_stale",
+              "dropped_expired",
+              "dropped_duplicate",
+              "dropped_overflow",
+              "dropped_retry_exhausted",
+              null
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "request_id",
+          "origin",
+          "kind",
+          "content_role",
+          "generation",
+          "sentence_id",
+          "sent_at_ms",
+          "played_ms",
+          "status"
+        ],
+        "description": "spec 06 §3.8: one item per OutputRequest"
+      }
+    },
+    "double_voice_count": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "stale_frames_dropped": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "lease_violations": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "queue_truncated": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "drops_by_reason": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "stale": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "expired": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "duplicate": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "overflow": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "retry_exhausted": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "stale",
+        "expired",
+        "duplicate",
+        "overflow",
+        "retry_exhausted"
+      ]
+    },
+    "flush_count": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "flush_ms_max": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "duration, integer ms"
+    },
+    "flush_timeouts": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "receipt_timeouts": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "started": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "ended": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "started",
+        "ended"
+      ]
+    },
+    "consumer_dropped_frames": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "suppressed_frames": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "receipt_mode": {
+      "enum": [
+        "receipts",
+        "estimated",
+        null
+      ]
+    },
+    "truncate_estimated": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "uplink_seq_gaps": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "uplink_jitter_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "duration, integer ms"
+    },
+    "rtt_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "duration, integer ms"
+    },
+    "downlink_lead_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "duration, integer ms"
+    },
+    "plc_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "duration, integer ms"
+    },
+    "turn_terminal": {
+      "enum": [
+        "completed",
+        "interrupted",
+        "discarded",
+        "failed",
+        "cancelled",
+        null
+      ]
+    },
+    "turn_closed_by": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "completed: playback_ended / T_drain; discarded: short_press / short_speech / false_wake / rule_silence; interrupted: interrupt source; failed: error code"
+    },
+    "error_code": {
+      "enum": [
+        "no_speech",
+        "asr_timeout",
+        "upstream_unavailable",
+        "upstream_timeout",
+        "upstream_rejected",
+        "tts_failed",
+        "audio_gap",
+        "link_lost",
+        "protocol_error",
+        "session_expired",
+        "internal",
+        null
+      ],
+      "description": "C: turn_terminal=failed"
+    },
+    "audio_damaged": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "error_class": {
+      "enum": [
+        "fatal",
+        "transient",
+        "context_overflow",
+        "benign",
+        null
+      ],
+      "description": "C: upstream error"
+    },
+    "restart_attempts_in_turn": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "watchdog_fired": {
+      "enum": [
+        "none",
+        "T_asr",
+        "T_filler",
+        "T_respond",
+        "T_drain",
+        "T_intr_receipt",
+        "T_listen_max",
+        "tool_timeout",
+        null
+      ]
+    },
+    "stuck": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "usage": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "usage_semantics": {
+          "enum": [
+            "net",
+            "gross",
+            null
+          ]
+        },
+        "responses": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "response_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "response_status": {
+                "enum": [
+                  "completed",
+                  "cancelled",
+                  "failed",
+                  "incomplete",
+                  null
+                ]
+              },
+              "interrupted": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "input_text_tokens": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "input_audio_tokens": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "cached_input_tokens": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "cached_text_tokens": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "cached_audio_tokens": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "output_text_tokens": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "output_audio_tokens": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "response_id",
+              "response_status",
+              "interrupted",
+              "input_text_tokens",
+              "input_audio_tokens",
+              "output_text_tokens",
+              "output_audio_tokens"
+            ],
+            "description": "spec 06 §3.10: usage per upstream response; interrupted responses are billed and recorded too"
+          }
+        },
+        "generated_audio_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "duration, integer ms"
+        },
+        "played_audio_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "duration, integer ms"
+        },
+        "input_audio_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "duration, integer ms"
+        },
+        "upstream_session_duration_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "duration, integer ms"
+        },
+        "local_tts_chars": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "asr_audio_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "duration, integer ms"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "usage_semantics",
+        "responses",
+        "generated_audio_ms",
+        "played_audio_ms",
+        "input_audio_ms",
+        "local_tts_chars"
+      ]
+    },
+    "ui_events": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "state_change",
+              "transcript_shown",
+              "card_shown",
+              "field_shown",
+              "option_tap",
+              "field_edit",
+              "confirm_tap",
+              "hangup",
+              "handoff_tap",
+              null
+            ]
+          },
+          "at_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "time point, integer ms relative to T0 (may be negative)"
+          },
+          "target": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sentence_id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "at_ms",
+          "target"
+        ]
+      }
+    },
+    "ui_audio_skew_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "duration, integer ms"
+    },
+    "handoff_to_human": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "guardrail_result": {
+      "enum": [
+        "pass",
+        "rewrite",
+        "block",
+        "n_a",
+        null
+      ]
+    },
+    "device_events": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "event_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "enum": [
+              "location",
+              "nfc",
+              "timer",
+              "sensor",
+              "task_done",
+              null
+            ]
+          },
+          "at_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "time point, integer ms relative to T0 (may be negative)"
+          },
+          "disposition": {
+            "enum": [
+              "handle",
+              "context",
+              "respond",
+              "interrupt",
+              null
+            ]
+          },
+          "acked": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "deduped": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "event_id",
+          "type",
+          "at_ms",
+          "disposition",
+          "acked",
+          "deduped"
+        ]
+      }
+    },
+    "playback_receipts": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "sentence_id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "request_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "started_at_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "time point, integer ms relative to T0 (may be negative)"
+          },
+          "ended_at_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "time point, integer ms relative to T0 (may be negative)"
+          },
+          "interrupted": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "played_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "within-sentence played duration"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "sentence_id",
+          "request_id",
+          "started_at_ms",
+          "ended_at_ms",
+          "interrupted",
+          "played_ms"
+        ]
+      }
+    },
+    "receipt_missing": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "narration_attempts": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "narration_delivered": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "stt_echo_timeout": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "feedback_signal": {
+      "enum": [
+        "none",
+        "led",
+        "tone",
+        null
+      ]
+    },
+    "invariant_violations": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "collector: spec 06 §3 invariants violated by this record (optional)"
+    },
+    "missing_fields": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "collector: required fields that were null-filled at finalize (optional)"
+    },
+    "heard_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "spec 01 §2.4 turn.closed.heard_ms: audio the user actually heard in this turn (receipts)"
+    }
+  },
+  "required": [
+    "trace_schema_version",
+    "profile",
+    "session_id",
+    "user_session_id",
+    "turn_id",
+    "generation",
+    "turn_source",
+    "t0_epoch_ms",
+    "pipeline",
+    "provider",
+    "model",
+    "prompt_version",
+    "gateway_build",
+    "turn_kind",
+    "user_text",
+    "action",
+    "decision_layer",
+    "anchors",
+    "latency",
+    "session_seq",
+    "rebuild_reason",
+    "state_block_version",
+    "state_update",
+    "reply_modality",
+    "turns_in_upstream_session",
+    "speech_ms",
+    "interrupted",
+    "outputs",
+    "double_voice_count",
+    "stale_frames_dropped",
+    "lease_violations",
+    "queue_truncated",
+    "drops_by_reason",
+    "flush_count",
+    "flush_ms_max",
+    "flush_timeouts",
+    "receipt_timeouts",
+    "consumer_dropped_frames",
+    "suppressed_frames",
+    "receipt_mode",
+    "uplink_jitter_ms",
+    "rtt_ms",
+    "turn_terminal",
+    "turn_closed_by",
+    "restart_attempts_in_turn",
+    "watchdog_fired",
+    "stuck",
+    "usage"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "profile": {
+            "const": "A"
+          }
+        },
+        "required": [
+          "profile"
+        ]
+      },
+      "then": {
+        "required": [
+          "device_id",
+          "server_vad_segments_in_turn",
+          "dropped_short_press",
+          "uplink_seq_gaps",
+          "downlink_lead_ms",
+          "device_events",
+          "playback_receipts",
+          "receipt_missing",
+          "stt_echo_timeout"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile": {
+            "const": "B"
+          }
+        },
+        "required": [
+          "profile"
+        ]
+      },
+      "then": {
+        "required": [
+          "user_id_hash",
+          "route",
+          "risk_level",
+          "stage",
+          "visible_actions_version",
+          "form_version_before",
+          "form_version_after",
+          "ui_events",
+          "ui_audio_skew_ms",
+          "handoff_to_human",
+          "guardrail_result"
+        ],
+        "properties": {
+          "latency": {
+            "required": [
+              "ui_feedback_first_at_ms",
+              "ui_content_first_at_ms"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "turn_source": {
+            "const": "text"
+          }
+        },
+        "required": [
+          "turn_source"
+        ]
+      },
+      "then": {
+        "required": [
+          "turn_input"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "turn_terminal": {
+            "const": "failed"
+          }
+        },
+        "required": [
+          "turn_terminal"
+        ]
+      },
+      "then": {
+        "required": [
+          "error_code"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "turn_kind": {
+            "enum": [
+              "tool_verbatim",
+              "tool_compose",
+              "tool_write"
+            ]
+          }
+        },
+        "required": [
+          "turn_kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "tool_calls",
+          "speak_mode"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+# Built-in declaration for the native full-duplex pipeline (moshi-like).
+# Architecture §3 "原生全双工的降级映射": everything is no/none; the adapter
+# synthesises turn and response events from audio activity.
+adapter: full_duplex
+upstream: { vendor: composed, model: "full_duplex_model", api_version: "vak-0.1" }
+probed_at: null
+fields:
+  turn.server_detection_disable: { value: "no", evidence: code_read, refs: ["architecture §3"] }
+  turn.segment_only: { value: "no", evidence: code_read, refs: [] }
+  turn.server_interrupt_optional: { value: "no", evidence: code_read, refs: ["model decides every frame"] }
+  turn.server_silence_ms: { value: null, evidence: code_read, refs: [] }
+  turn.sensitivity_levels: { value: none, evidence: code_read, refs: [] }
+  turn.commit_mode: { value: none, evidence: code_read, refs: ["spec 04 §2.2.1: 无回合概念"] }
+  turn.commit_min_ms: { value: null, evidence: code_read, refs: [] }
+  turn.empty_commit_behavior: { value: ignored, evidence: code_read, refs: [] }
+  turn.input_mute: { value: "no", evidence: code_read, refs: [] }
+  history.injection: { value: [], evidence: code_read, refs: ["architecture §3: history.injection={}"] }
+  history.mid_session_effective: { value: "no", evidence: code_read, refs: [] }
+  history.limits: { value: {}, evidence: code_read, refs: [] }
+  history.constraints: { value: [], evidence: code_read, refs: [] }
+  history.text_flips_modality: { value: "no", evidence: code_read, refs: [] }
+  history.tool_calls: { value: drop, evidence: code_read, refs: [] }
+  history.item_id_echo: { value: none, evidence: code_read, refs: [] }
+  history.item_ack: { value: "no", evidence: code_read, refs: [] }
+  config.update.instructions: { value: next_session, evidence: code_read, refs: ["handbook full-duplex §2.1: 不能"] }
+  config.update.tools: { value: next_session, evidence: code_read, refs: [] }
+  config.update.voice: { value: next_session, evidence: code_read, refs: ["needs fine-tuning"] }
+  config.update_invalidates_cache: { value: "no", evidence: code_read, refs: [] }
+  config.append_channels: { value: [], evidence: code_read, refs: [] }
+  config.update_ack: { value: "no", evidence: code_read, refs: [] }
+  response.client_initiated: { value: "no", evidence: code_read, refs: ["architecture §3"] }
+  response.overrides: { value: {}, evidence: code_read, refs: [] }
+  response.single_slot: { value: "yes", evidence: code_read, refs: ["one output stream"] }
+  response.say: { value: none, evidence: code_read, refs: [] }
+  tools.calling: { value: none, evidence: code_read, refs: ["architecture §3"] }
+  tools.auto_reply_after_result: { value: "no", evidence: code_read, refs: [] }
+  tools.silent_close: { value: none, evidence: code_read, refs: [] }
+  tools.placeholder_accepted: { value: "no", evidence: code_read, refs: [] }
+  tools.parallel_calls: { value: "no", evidence: code_read, refs: [] }
+  tools.args_streaming: { value: complete, evidence: code_read, refs: [] }
+  truncate.mode: { value: none, evidence: code_read, refs: ["architecture §3"] }
+  session.resumption: { value: none, evidence: code_read, refs: [] }
+  session.max_secs: { value: null, evidence: code_read, refs: ["model dependent (moshi ~5 min)"] }
+  session.max_turns_retained: { value: null, evidence: code_read, refs: [] }
+  session.expiry_notice: { value: "no", evidence: code_read, refs: [] }
+  session.idle_timeout_secs: { value: null, evidence: code_read, refs: [] }
+  session.server_compaction: { value: none, evidence: code_read, refs: [] }
+  session.init_ready_signal: { value: ack_event, evidence: code_read, refs: ["session.opened emitted by open"] }
+  usage.cache_reported: { value: none, evidence: code_read, refs: [] }
+  usage.semantics: { value: net, evidence: code_read, refs: [] }
+  errors.code_map: { value: {}, evidence: code_read, refs: [] }
+  errors.code_stability: { value: message_match, evidence: code_read, refs: [] }
+  errors.event_correlation: { value: "no", evidence: code_read, refs: [] }
+  output.modalities: { value: [audio], evidence: code_read, refs: ["text frames are inner monologue"] }
+  output.modality_switch: { value: session_fixed, evidence: code_read, refs: [] }
+  output.transcript: { value: "yes", evidence: code_read, refs: ["model text stream -> transcript.assistant"] }
+  output.text_lead_ms: { value: 80, evidence: code_read, refs: ["handbook full-duplex §2.1"] }
+  output.audio_format: { value: { encoding: pcm16, sample_rate: 24000 }, evidence: code_read, refs: ["declared per event; arbiter resamples"] }
+  output.voice_prompt: { value: "no", evidence: code_read, refs: [] }
+  uplink.audio_format: { value: { encoding: pcm16, sample_rate: 24000 }, evidence: code_read, refs: [] }
+  uplink.faster_than_realtime: { value: degrades, evidence: code_read, refs: ["frame-synchronous model"] }
+  uplink.gaps: { value: degrades, evidence: code_read, refs: [] }
+  uplink.streaming_input: { value: streaming, evidence: code_read, refs: [] }
+  cascade.user_transcript: { value: none, evidence: code_read, refs: ["architecture §3: native full duplex transcribes nothing of the user"] }
+  cascade.pre_speech_hook: { value: n/a, evidence: code_read, refs: [] }
+  cascade.prefix_cache: { value: n/a, evidence: code_read, refs: [] }

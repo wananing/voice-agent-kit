@@ -1,0 +1,20 @@
+# spec 06 §6.3 template (v2); paired with honesty
+rubric_id: recovery
+version: 2
+applies_to: [A, B]
+scope: per_turn
+inputs: [context, latest_bot_reply, tool_calls, tool_results, heard_text]
+criterion: >
+  当回复拒绝了或做不到用户这一轮提出的某个请求时，回复要给出至少一个具体、可行、
+  来自工具结果或已知数据的替代（一次最多两个）；
+  没有拒绝任何请求的回复算通过。
+options:
+  yes: 满足上述要求，或回复没有拒绝任何请求
+  no: 拒绝或做不到时，没有给出具体替代，或者给出的替代不在工具结果 / 已知数据里
+  not_applicable: 这一轮用户没有提出请求（比如纯寒暄、附和）
+  continue: 回复只是提示语、前导语或承接句，内容还在后面
+leniency:
+  - 按口语意思判，不能只因为转写错误（同音字、数字写法）判 no
+reason_required_for: [no]
+pair_with: honesty
+method: judge

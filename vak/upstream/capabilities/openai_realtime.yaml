@@ -1,0 +1,106 @@
+# Capability declaration for providers/openai_realtime.py (spec 04 §2.2).
+# Static fill (spec 04 §7.2 step 1): values come from reading open-source
+# clients and the notes, never from our own probes. `vak probe openai_realtime`
+# overwrites fields with evidence: probed and sets probed_at.
+# Ref shorthands: PC-B = docs/notes/pipecat-B.md, LK-B = docs/notes/livekit-agents-B.md,
+# ORA = docs/notes/openai-realtime-agents.md, QAA = qwen-audio-agent/server/src/voice/.
+adapter: openai_realtime
+upstream: { vendor: openai, model: "gpt-realtime", api_version: "ga (2025) / beta (realtime=v1)" }
+probed_at: null
+fields:
+  # --- turn (§2.2.1) ---
+  turn.server_detection_disable:
+    { value: "yes", evidence: code_read,
+      refs: ["PC-B §3.1 (turn_detection=False)", "LK-B §3.1 (turn_detection: null)", "openai-realtime-agents/src/app/App.tsx:274-276 PTT sets turn_detection null"] }
+  turn.segment_only:
+    { value: partial, evidence: code_read,
+      refs: ["PC-B §3.3 (semantic_vad has create_response/interrupt_response; server_vad unconfirmed)", "LK-B §3.2 (create_response=False)"] }
+  turn.server_interrupt_optional:
+    { value: "yes", evidence: code_read, refs: ["LK-B §3.2 (interrupt_response=False warning)", "PC-B §3.3"] }
+  turn.server_silence_ms:
+    { value: unknown, evidence: unknown, refs: ["ORA §1: silence_duration_ms 500 is the client-configured value, actual threshold needs P0-3"] }
+  turn.sensitivity_levels: { value: none, evidence: doc, refs: ["server_vad threshold/silence_duration_ms are continuous, not levels"] }
+  turn.commit_mode: { value: commit_create, evidence: code_read, refs: ["LK-B §3.3", "App.tsx:315-316 commit + response.create"] }
+  turn.commit_min_ms: { value: 100, evidence: code_read, refs: ["LK-B §3.3 (plugin requires > 100 ms before commit)"] }
+  turn.empty_commit_behavior:
+    { value: "error(input_audio_buffer_commit_empty)", evidence: code_read, refs: ["LK-B §3.2 (swallowed when server VAD already committed)"] }
+  turn.input_mute: { value: "no", evidence: doc, refs: ["no mute event in the protocol; E2E Q4 lists it only for Doubao"] }
+  # --- history (§2.2.2) ---
+  history.injection:
+    { value: [init_only, per_item, packed_item], evidence: code_read,
+      refs: ["PC-B §1.2 (per_item has pitfalls; Pipecat switched to one packed item)", "LK-B §2.1 (per item replay)", "spec 04 §2.3 table A"] }
+  history.mid_session_effective: { value: unknown, evidence: unknown, refs: ["LK-B table L2 measured 0/6 on our (different) upstream; P0-9"] }
+  history.limits: { value: {}, evidence: unknown, refs: [] }
+  history.constraints: { value: [], evidence: code_read, refs: ["PC-B §1.2: no ordering constraint documented for OpenAI"] }
+  history.text_flips_modality:
+    { value: "yes", evidence: code_read, refs: ["PC-B §1.2 (per-item text history: model forgets it can speak)", "LK-B §4.2"] }
+  history.tool_calls: { value: keep, evidence: code_read, refs: ["spec 04 §2.3 table A", "LK-B §2.1"] }
+  history.item_id_echo: { value: client_id, evidence: code_read, refs: ["LK-B §1.2 (same id on both sides)", "QAA ga-protocol.mjs (ids namespaced msg_/fc_/fco_)"] }
+  history.item_ack: { value: "yes", evidence: code_read, refs: ["conversation.item.created; LK-B §1.4"] }
+  # --- config (§2.2.3) ---
+  config.update.instructions: { value: live_full, evidence: code_read, refs: ["PC-B §1.3", "ORA Q3 (session.update replaces instructions)"] }
+  config.update.tools: { value: live_full, evidence: code_read, refs: ["PC-B §1.3", "ORA Q3"] }
+  config.update.voice: { value: next_session, evidence: code_read, refs: ["ORA Q3: voice cannot change after first audio output (SDK realtimeAgent.mjs)"] }
+  config.update_invalidates_cache: { value: unknown, evidence: unknown, refs: ["ORA Q3 item 2 (unconfirmed for OpenAI); P0-6"] }
+  config.append_channels: { value: [], evidence: doc, refs: ["PC-B §1.3: append channels only on GPT-Live"] }
+  config.update_ack: { value: "yes", evidence: code_read, refs: ["session.updated; QAA realtime-provider.mjs acknowledgesSessionUpdate"] }
+  # --- response (§2.2.4) ---
+  response.client_initiated: { value: "yes", evidence: code_read, refs: ["response.create; QAA clientResponses default true"] }
+  response.overrides:
+    { value: { instructions: replace, modalities: true, tools: true, tool_choice: true, instructions_fallback: none },
+      evidence: code_read, refs: ["LK-B §1.6", "PC-B §1.3", "QAA gpt-live.mjs perResponseInstructions:true"] }
+  response.single_slot:
+    { value: unknown, evidence: unknown,
+      refs: ["PC-B §2.2 conversation_already_has_active_response exists; QAA gpt-live.mjs does not set singleResponseSlot; P0-8"] }
+  response.say: { value: none, evidence: code_read, refs: ["docs/notes/livekit-agents.md Q1(b): OpenAI has no say, needs local TTS"] }
+  # --- tools (§2.2.5) ---
+  tools.calling: { value: native, evidence: code_read, refs: ["ORA Q1(d)", "QAA gpt-live.mjs tools"] }
+  tools.auto_reply_after_result:
+    { value: "no", evidence: code_read,
+      refs: ["ORA Q1(d): SDK sends function_call_output AND response.create", "QAA realtime-provider.mjs automaticToolResponses default false", "spec 04 §2.3 table B"] }
+  tools.silent_close: { value: by_omission, evidence: code_read, refs: ["spec 04 §3.7: no auto reply -> omit response.create", "ORA §3.2 item 4 (unverified server-side)"] }
+  tools.placeholder_accepted: { value: unknown, evidence: unknown, refs: ["P0-12"] }
+  tools.parallel_calls: { value: unknown, evidence: unknown, refs: ["ORA Q1(c) sets parallel_tool_calls false on the text model only"] }
+  tools.args_streaming: { value: complete, evidence: code_read, refs: ["response.function_call_arguments.done carries full arguments"] }
+  # --- truncate / session (§2.2.6-7) ---
+  truncate.mode: { value: audio_ms, evidence: code_read, refs: ["ORA Q4 (SDK websocket interrupt -> conversation.item.truncate audio_end_ms)", "LK-B §6"] }
+  session.resumption: { value: none, evidence: code_read, refs: ["spec 04 §2.3 table B: no handle"] }
+  session.max_secs: { value: unknown, evidence: unknown, refs: ["KM 2.10: LiveKit's 20 min is plugin policy, not the upstream limit"] }
+  session.max_turns_retained: { value: unknown, evidence: unknown, refs: [] }
+  session.expiry_notice: { value: "no", evidence: code_read, refs: ["no go_away-style event in the protocol"] }
+  session.idle_timeout_secs: { value: unknown, evidence: unknown, refs: [] }
+  session.server_compaction: { value: none, evidence: doc, refs: ["no sliding-window option in the protocol"] }
+  session.init_ready_signal: { value: ack_event, evidence: code_read, refs: ["session.created / session.updated; QAA realtime-provider.mjs completeSessionSetup"] }
+  # --- usage / errors (§2.2.8-9) ---
+  usage.cache_reported:
+    { value: cached_tokens_by_modality, evidence: code_read, refs: ["PC-B §1.3", "LK-B §1.6 (response.done usage.input_token_details.cached_tokens_details)"] }
+  usage.semantics: { value: net, evidence: unknown, refs: ["spec 06 §3.10; not verified against billing"] }
+  errors.code_map:
+    { value:
+        { invalid_api_key: { class: fatal, reason: auth },
+          insufficient_quota: { class: fatal, reason: quota },
+          session_expired: { class: transient, reason: session_lost },
+          rate_limit_exceeded: { class: transient, reason: throttled },
+          server_error: { class: transient, reason: unknown },
+          response_cancel_not_active: { class: benign, reason: cancel_race },
+          conversation_already_has_active_response: { class: benign, reason: cancel_race },
+          input_audio_buffer_commit_empty: { class: benign, reason: empty_commit },
+          item_create_duplicate_item_id: { class: benign, reason: duplicate } },
+      evidence: code_read, refs: ["PC-B §2.2", "LK-B §2.2, §1.4, §3.2", "spec 04 §4.6"] }
+  errors.code_stability: { value: stable_codes, evidence: code_read, refs: ["PC-B §2.2 (xAI differs; OpenAI codes are stable)"] }
+  errors.event_correlation: { value: "yes", evidence: code_read, refs: ["LK-B §2.2 (error.event_id)"] }
+  # --- output / uplink (§2.2.10-11) ---
+  output.modalities: { value: [audio, text], evidence: code_read, refs: ["PC-B §4 (one of audio/text per response)"] }
+  output.modality_switch: { value: per_response, evidence: code_read, refs: ["PC-B §4", "LK-B §4.1"] }
+  output.transcript: { value: "yes", evidence: code_read, refs: ["response.audio_transcript.delta/done"] }
+  output.text_lead_ms: { value: unknown, evidence: unknown, refs: ["spec 04 §2.2.10: tens of ms on S2S; not measured"] }
+  output.audio_format: { value: { encoding: pcm16, sample_rate: 24000 }, evidence: code_read, refs: ["QAA gpt-live.mjs audio.output.format audio/pcm rate 24000"] }
+  output.voice_prompt: { value: "no", evidence: doc, refs: ["preset voices only"] }
+  uplink.audio_format: { value: { encoding: pcm16, sample_rate: 24000 }, evidence: code_read, refs: ["QAA gpt-live.mjs inputSampleRate 24000"] }
+  uplink.faster_than_realtime: { value: unknown, evidence: unknown, refs: ["P0-10"] }
+  uplink.gaps: { value: unknown, evidence: unknown, refs: ["P0-10"] }
+  uplink.streaming_input: { value: streaming, evidence: code_read, refs: ["input_audio_buffer.append"] }
+  # --- cascade-only (§2.2.12) ---
+  cascade.user_transcript: { value: "n/a", evidence: doc, refs: ["spec 04 §2.2.12: non-cascade upstreams fill n/a"] }
+  cascade.pre_speech_hook: { value: "n/a", evidence: doc, refs: ["spec 04 §6.4: no hook on S2S"] }
+  cascade.prefix_cache: { value: "n/a", evidence: doc, refs: ["spec 04 §2.2.12: non-cascade upstreams fill n/a"] }

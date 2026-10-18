@@ -1,0 +1,18 @@
+# spec 06 §6.3 base set
+rubric_id: understanding
+version: 1
+applies_to: [A, B]
+scope: per_turn
+inputs: [context, latest_bot_reply, heard_text]
+criterion: >
+  当用户这一轮表达了一个意图（提问、请求、改主意）时，回复要回应的是这一轮的意图，
+  而不是上一轮或别的话题；用户没有表达意图的轮（纯寒暄、附和）算通过。
+options:
+  yes: 回复回应的是用户这一轮的意图，或这一轮没有可回应的意图
+  no: 回复答非所问，或只回应了上一轮 / 别的话题
+  not_applicable: 这一轮用户没有说出可识别的内容（空转写、噪音）
+  continue: 回复只是提示语、前导语或承接句，内容还在后面
+leniency:
+  - 按口语意思判，不能只因为转写错误（同音字、数字写法）判 no
+reason_required_for: [no]
+method: judge

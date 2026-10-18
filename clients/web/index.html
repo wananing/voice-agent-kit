@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>va/1 web client</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; font-size: 14px; color: #222; background: #f6f6f6; }
+    body { margin: 0; padding: 12px; }
+    h1 { font-size: 16px; margin: 0 0 8px; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+    .panel { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 10px; min-height: 120px; }
+    .panel h2 { font-size: 13px; margin: 0 0 6px; color: #555; text-transform: uppercase; letter-spacing: .04em; }
+    input[type=text], select { padding: 6px 8px; border: 1px solid #bbb; border-radius: 4px; font: inherit; }
+    #url { width: 260px; }
+    button { padding: 6px 12px; border: 1px solid #888; border-radius: 4px; background: #eee; font: inherit; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: default; }
+    #talk { width: 100%; padding: 28px 0; font-size: 18px; touch-action: none; user-select: none; -webkit-user-select: none; }
+    #talk.down { background: #d33; color: #fff; border-color: #a00; }
+    .lamp { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #999; vertical-align: middle; margin-right: 6px; }
+    .lamp.idle { background: #999; } .lamp.listening { background: #2a7; } .lamp.holding { background: #6c6; }
+    .lamp.committed { background: #fa0; } .lamp.responding { background: #39f; } .lamp.draining { background: #6af; }
+    #state { font-weight: 600; }
+    #transcript, #sentences { font-size: 15px; line-height: 1.5; }
+    .partial { color: #888; }
+    .turn { color: #999; font-size: 12px; margin-right: 6px; }
+    .sentence { padding: 2px 0; }
+    .sentence.playing { color: #06c; }
+    .sentence.interrupted { text-decoration: line-through; color: #a44; }
+    .sentence small { color: #888; margin-left: 6px; }
+    #stats { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; font-family: ui-monospace, monospace; font-size: 12px; }
+    #stats dt { color: #666; } #stats dd { margin: 0; }
+    #log { font-family: ui-monospace, monospace; font-size: 11.5px; white-space: pre-wrap; max-height: 320px; overflow-y: auto; }
+    #log .tx { color: #06a; } #log .rx { color: #363; } #log .warn { color: #b60; } #log .error { color: #c00; }
+    #text { flex: 1; min-width: 200px; }
+    .hint { color: #777; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>voice-agent-kit — va/1 web reference client</h1>
+
+  <div class="row">
+    <label>Gateway <input id="url" type="text"></label>
+    <label>Profile <select id="profile"><option>A</option><option selected>B</option></select></label>
+    <label>Mode <select id="mode"><option value="ptt" selected>ptt</option><option value="open_mic">open_mic</option></select></label>
+    <label><input id="pcm16" type="checkbox"> force pcm16</label>
+    <button id="connect">Connect</button>
+    <button id="disconnect" disabled>Disconnect</button>
+  </div>
+
+  <div class="row">
+    <span class="lamp idle" id="lamp"></span><span id="state">idle</span>
+    <span id="turn" class="hint"></span>
+    <span id="conn" class="hint">disconnected</span>
+  </div>
+
+  <div class="grid">
+    <div>
+      <button id="talk" disabled>Hold to talk (or hold Space)</button>
+      <div class="row" style="margin-top:8px">
+        <input id="text" type="text" placeholder="type a message, Enter to send" disabled>
+        <button id="send" disabled>Send</button>
+      </div>
+      <div class="row">
+        <button id="listen-open" disabled>listen.open</button>
+        <button id="listen-close" disabled>listen.close</button>
+        <span class="hint">open_mic: the client never stops playback on its own; it waits for flush.start</span>
+      </div>
+      <div class="panel">
+        <h2>Transcript (stt)</h2>
+        <div id="transcript"></div>
+      </div>
+      <div class="panel" style="margin-top:12px">
+        <h2>Assistant (shown at playback.started)</h2>
+        <div id="sentences"></div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h2>Stats</h2>
+        <dl id="stats"></dl>
+      </div>
+      <div class="panel" style="margin-top:12px">
+        <h2>Event log</h2>
+        <div id="log"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

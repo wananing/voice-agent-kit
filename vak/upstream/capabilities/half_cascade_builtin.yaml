@@ -1,0 +1,66 @@
+# Built-in declaration for the half-cascade pipeline (audio LLM, text out, + TTS).
+# Spec 04 §6.5. Evidence is code_read: these values describe the pipeline's
+# own code, not a remote service. STT/TTS-dependent fields are marked.
+adapter: half_cascade
+upstream: { vendor: composed, model: "audio_llm+tts", api_version: "vak-0.1" }
+probed_at: null
+fields:
+  turn.server_detection_disable: { value: "yes", evidence: code_read, refs: ["spec 04 §6.5: 自控"] }
+  turn.segment_only: { value: "no", evidence: code_read, refs: ["no server segmentation exists"] }
+  turn.server_interrupt_optional: { value: "yes", evidence: code_read, refs: ["spec 04 §6.3: no speech_started"] }
+  turn.server_silence_ms: { value: null, evidence: code_read, refs: ["endpointing is the gateway's"] }
+  turn.sensitivity_levels: { value: none, evidence: code_read, refs: [] }
+  turn.commit_mode: { value: whole_utterance, evidence: code_read, refs: ["spec 04 §6.5: whole_utterance"] }
+  turn.commit_min_ms: { value: null, evidence: code_read, refs: ["depends on STT"] }
+  turn.empty_commit_behavior: { value: "error(no_audio)", evidence: code_read, refs: ["pipelines/half_cascade.py commit_turn"] }
+  turn.input_mute: { value: "no", evidence: code_read, refs: [] }
+  history.injection: { value: [init_only, per_item], evidence: code_read, refs: ["spec 04 §6.5: 每次请求自带"] }
+  history.mid_session_effective: { value: "yes", evidence: code_read, refs: ["messages re-sent each request"] }
+  history.limits: { value: {}, evidence: code_read, refs: ["LLM context limit is the LLM's"] }
+  history.constraints: { value: [], evidence: code_read, refs: [] }
+  history.text_flips_modality: { value: "no", evidence: code_read, refs: ["TTS always speaks"] }
+  history.tool_calls: { value: keep, evidence: code_read, refs: ["OpenAI-style tool_calls kept"] }
+  history.item_id_echo: { value: client_id, evidence: code_read, refs: ["local list, ids are ours"] }
+  history.item_ack: { value: "yes", evidence: code_read, refs: ["local append is immediate"] }
+  config.update.instructions: { value: live_full, evidence: code_read, refs: ["spec 04 §6.2 update_config"] }
+  config.update.tools: { value: live_full, evidence: code_read, refs: ["spec 04 §6.2 update_config"] }
+  config.update.voice: { value: next_session, evidence: code_read, refs: ["voice is the shared TTS config (spec 04 §6.1)"] }
+  config.update_invalidates_cache: { value: "yes", evidence: code_read, refs: ["system prefix changes"] }
+  config.append_channels: { value: [], evidence: code_read, refs: [] }
+  config.update_ack: { value: "yes", evidence: code_read, refs: [] }
+  response.client_initiated: { value: "yes", evidence: code_read, refs: [] }
+  response.overrides: { value: { instructions: replace, modalities: true, tools: true, tool_choice: true }, evidence: code_read, refs: ["spec 04 §6.5: 全部支持"] }
+  response.single_slot: { value: "yes", evidence: code_read, refs: ["LLM.cancel() has no request id"] }
+  response.say: { value: native, evidence: code_read, refs: ["spec 04 表 B: 直接进 TTS"] }
+  tools.calling: { value: native, evidence: code_read, refs: ["depends on LLM"] }
+  tools.auto_reply_after_result: { value: "no", evidence: code_read, refs: ["spec 04 §6.5"] }
+  tools.silent_close: { value: by_omission, evidence: code_read, refs: ["spec 04 §3.7 级联行"] }
+  tools.placeholder_accepted: { value: "yes", evidence: code_read, refs: ["any tool message is appended"] }
+  tools.parallel_calls: { value: "yes", evidence: code_read, refs: ["depends on LLM"] }
+  tools.args_streaming: { value: complete, evidence: code_read, refs: ["LLM contract reports complete calls"] }
+  truncate.mode: { value: local_only, evidence: code_read, refs: ["spec 04 §6.2"] }
+  session.resumption: { value: none, evidence: code_read, refs: ["no remote session"] }
+  session.max_secs: { value: null, evidence: code_read, refs: [] }
+  session.max_turns_retained: { value: null, evidence: code_read, refs: [] }
+  session.expiry_notice: { value: "no", evidence: code_read, refs: [] }
+  session.idle_timeout_secs: { value: null, evidence: code_read, refs: [] }
+  session.server_compaction: { value: none, evidence: code_read, refs: [] }
+  session.init_ready_signal: { value: ack_event, evidence: code_read, refs: ["session.opened emitted by open"] }
+  usage.cache_reported: { value: none, evidence: code_read, refs: ["depends on LLM"] }
+  usage.semantics: { value: net, evidence: code_read, refs: [] }
+  errors.code_map: { value: {}, evidence: code_read, refs: [] }
+  errors.code_stability: { value: message_match, evidence: code_read, refs: [] }
+  errors.event_correlation: { value: "no", evidence: code_read, refs: [] }
+  output.modalities: { value: [audio, text], evidence: code_read, refs: [] }
+  output.modality_switch: { value: per_response, evidence: code_read, refs: ["overrides.modalities"] }
+  output.transcript: { value: "yes", evidence: code_read, refs: ["text precedes audio"] }
+  output.text_lead_ms: { value: null, evidence: code_read, refs: ["whole sentence ahead"] }
+  output.audio_format: { value: { encoding: pcm16, sample_rate: 16000 }, evidence: code_read, refs: ["TTS sample_rate declared per event"] }
+  output.voice_prompt: { value: "no", evidence: code_read, refs: ["depends on TTS"] }
+  uplink.audio_format: { value: { encoding: pcm16, sample_rate: 16000 }, evidence: code_read, refs: ["depends on STT"] }
+  uplink.faster_than_realtime: { value: tolerated, evidence: code_read, refs: ["depends on STT"] }
+  uplink.gaps: { value: tolerated, evidence: code_read, refs: ["depends on STT"] }
+  uplink.streaming_input: { value: whole_utterance, evidence: code_read, refs: ["spec 04 §6.5; AudioLLM.streaming_input may upgrade this"] }
+  cascade.user_transcript: { value: side_request, evidence: code_read, refs: ["spec 04 §6.3; none when no side STT is configured"] }
+  cascade.pre_speech_hook: { value: sentence, evidence: code_read, refs: ["spec 04 §6.4"] }
+  cascade.prefix_cache: { value: "unknown", evidence: unknown, refs: ["depends on inference service"] }
