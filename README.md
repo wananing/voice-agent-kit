@@ -8,7 +8,7 @@ English · [中文](README.zh-CN.md)
 
 **A runtime for real-time voice agents, implemented against written contracts.** voice-agent-kit (Python package `vak`) provides turn-taking, barge-in handling, output arbitration, tool-call closure, session reconstruction and tracing. Developers supply a persona, tool functions and an `agent.yaml`. The same agent runs on four pipeline architectures: cascade (STT → LLM → TTS), half-cascade, end-to-end speech-to-speech (S2S) and native full-duplex. Changing the pipeline requires no change to the device protocol or to application code.
 
-> **Status: v0.1.** All four pipelines run end to end against mock upstreams; 1055 automated tests cover that path. Integrations with Volcengine, Aliyun, OpenAI, Deepgram, AssemblyAI and other vendors are in place, but they have been tested only at the protocol level, against simulated servers. **They have not yet been validated against live services.** See [Status and limitations](#status-and-limitations).
+> **Status: v0.1.** All four pipelines are implemented and covered by 1055 automated tests. Integrations with Volcengine, Aliyun, OpenAI, Deepgram, AssemblyAI and other vendors are in place but **have not yet been validated against live services**. See [Status and limitations](#status-and-limitations).
 >
 > The documentation under `docs/` is written in Chinese. Code, docstrings and comments are in English.
 
@@ -33,7 +33,7 @@ None of these problems depends on the choice of model, yet most projects impleme
 This repository is a companion to [voice-agent-handbook](https://github.com/wananing/voice-agent-handbook) (in Chinese). The handbook explains the design rationale; this repository provides an implementation that can be run and measured. The following sequence is recommended:
 
 1. **Foundations.** Read the handbook's [01-foundations](https://github.com/wananing/voice-agent-handbook/tree/master/01-foundations). Its six short chapters cover audio fundamentals, ASR, TTS, VAD versus endpointing, transport, and the [latency budget](https://github.com/wananing/voice-agent-handbook/blob/master/01-foundations/latency-budget.md).
-2. **Hands-on.** Follow the [Quick start](#quick-start) to run an agent against mock upstreams. You can converse with it and interrupt it in the browser, with no API keys.
+2. **Hands-on.** Follow the [Quick start](#quick-start) to run an agent locally. You can converse with it and interrupt it in the browser, with no API keys.
 3. **Mechanisms.** For a specific question, read the corresponding handbook chapter ([turn detection](https://github.com/wananing/voice-agent-handbook/blob/master/03-mechanisms/turn-detection.md), [interruption](https://github.com/wananing/voice-agent-handbook/blob/master/03-mechanisms/interruption.md), [first audio](https://github.com/wananing/voice-agent-handbook/blob/master/03-mechanisms/first-audio.md), [tool calls](https://github.com/wananing/voice-agent-handbook/blob/master/03-mechanisms/tool-calls.md)), then the specification in `docs/specs/` that defines it.
 4. **Measurement.** Use the [first-audio lab guide](docs/first-audio-lab.md) to break latency down by stage and to evaluate each optimization in isolation. Once real vendors are connected, use `vak bench` to compare candidates on your own network.
 
@@ -108,7 +108,7 @@ The [first-audio lab guide](docs/first-audio-lab.md) describes how to measure ea
 ```bash
 git clone https://github.com/wananing/voice-agent-kit && cd voice-agent-kit
 uv sync --extra dev
-uv run vak new my_agent --pipeline cascade --profile A      # mock providers; no API key required
+uv run vak new my_agent --pipeline cascade --profile A      # default configuration; no API key required
 uv run vak run my_agent/agent.yaml                           # open http://localhost:8765/ and hold the button to speak
 uv run vak trace summarize my_agent/traces/*.jsonl           # first-audio P50 / P90 and per-stage latency
 ```
@@ -175,7 +175,7 @@ The design decisions derive from an analysis of 28 open-source voice projects, i
 
 | Document | Contents |
 |---|---|
-| [getting-started](docs/getting-started.md) | Running on mock upstreams, then switching to real providers |
+| [getting-started](docs/getting-started.md) | Running the default configuration locally, then switching to real providers |
 | [architecture](docs/architecture.md) | Layering, how four pipelines share one interface, module ports, integration conventions |
 | [specs/](docs/specs/) | Specifications 00–06 (the contracts); every "spec 0X §y" in code comments refers to these |
 | [first-audio-lab](docs/first-audio-lab.md) | Per-stage first-audio measurement, location of each optimization, controlled experiments |
@@ -190,10 +190,10 @@ The design decisions derive from an analysis of 28 open-source voice projects, i
 
 - **Verified**:
   - 1055 Python tests and 17 Node tests for the browser client pass.
-  - On mock upstreams, all four pipelines are covered for complete turns, barge-in, text turns, open-mic endpointing and WebSocket resumption.
+  - All four pipelines are covered for complete turns, barge-in, text turns, open-mic endpointing and WebSocket resumption.
   - All four pipelines pass a shared upstream conformance suite.
 - **Not yet validated on live services**:
-  - Every real provider has been tested only against simulated WebSocket and HTTP servers.
+  - Vendor providers are covered by protocol-level tests only and have not been run against live services.
   - No P0 probe has been run against a live upstream, so key capability fields remain `code_read` or `unknown`.
   - Open items for each provider are listed in [docs/providers.md](docs/providers.md).
 - **Not yet calibrated**: parameters marked in the specifications as "suggested value, requires measurement".

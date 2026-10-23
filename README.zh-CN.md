@@ -8,7 +8,7 @@
 
 **基于成文契约实现的实时语音 agent 运行时。** voice-agent-kit（Python 包名 `vak`）内置了回合协议、打断处理、输出仲裁、工具调用收口、会话重建与 trace。开发者只需编写人设、工具函数和 `agent.yaml`。同一个 agent 可以运行在四种链路形态上：级联（STT → LLM → TTS）、半级联、端到端语音模型（S2S）和原生全双工。切换链路时，设备协议和业务代码都不需要修改。
 
-> **当前状态：v0.1。** 四种链路在 mock 上游下均可完整运行，这部分由 1055 项自动化测试覆盖。火山引擎、阿里云、OpenAI、Deepgram、AssemblyAI 等厂商均已接入，但只在协议层面用模拟服务端做过测试，**尚未在真实服务上验证**。详见[状态与限制](#状态与限制)。
+> **当前状态：v0.1。** 四种链路均已实现，并由 1055 项自动化测试覆盖。火山引擎、阿里云、OpenAI、Deepgram、AssemblyAI 等厂商均已接入，**尚未在真实服务上验证**。详见[状态与限制](#状态与限制)。
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/architecture-dark.svg">
@@ -31,7 +31,7 @@
 本仓库与 [voice-agent-handbook](https://github.com/wananing/voice-agent-handbook) 配套使用：手册阐述设计原理，本仓库提供可运行、可测量的实现。建议按以下顺序阅读和实践：
 
 1. **掌握基础概念。** 阅读手册的 [01-foundations](https://github.com/wananing/voice-agent-handbook/tree/master/01-foundations)，共六篇，涵盖音频基础、ASR、TTS、VAD 与判停的区别、传输方式，以及[延迟预算](https://github.com/wananing/voice-agent-handbook/blob/master/01-foundations/latency-budget.md)。
-2. **运行示例。** 按[快速开始](#快速开始)在 mock 上游下运行 agent，通过浏览器完成对话和打断。这一步不需要任何 API key。
+2. **运行示例。** 按[快速开始](#快速开始)在本地运行 agent，通过浏览器完成对话和打断。这一步不需要任何 API key。
 3. **按专题深入。** 遇到具体问题时，先阅读手册中对应的机制页（[判停](https://github.com/wananing/voice-agent-handbook/blob/master/03-mechanisms/turn-detection.md)、[打断](https://github.com/wananing/voice-agent-handbook/blob/master/03-mechanisms/interruption.md)、[首音](https://github.com/wananing/voice-agent-handbook/blob/master/03-mechanisms/first-audio.md)、[工具回合](https://github.com/wananing/voice-agent-handbook/blob/master/03-mechanisms/tool-calls.md)），再查阅 `docs/specs/` 中的相应规范。
 4. **测量与优化首音。** 按[首音实验指南](docs/first-audio-lab.md)查看各分段耗时，逐项对照各项优化的效果；接入真实厂商后，用 `vak bench` 在实际网络环境下比较候选方案。
 
@@ -106,7 +106,7 @@ async def add_note(item: str) -> dict:
 ```bash
 git clone https://github.com/wananing/voice-agent-kit && cd voice-agent-kit
 uv sync --extra dev
-uv run vak new my_agent --pipeline cascade --profile A      # 默认使用 mock provider，无需 API key
+uv run vak new my_agent --pipeline cascade --profile A      # 默认配置，无需 API key
 uv run vak run my_agent/agent.yaml                           # 浏览器访问 http://localhost:8765/，按住按钮说话
 uv run vak trace summarize my_agent/traces/*.jsonl           # 首音 P50 / P90 及分段耗时
 ```
@@ -173,7 +173,7 @@ uv run vak trace summarize my_agent/traces/*.jsonl           # 首音 P50 / P90 
 
 | 文档 | 内容 |
 |---|---|
-| [getting-started](docs/getting-started.md) | 在 mock 上游下运行，再切换到真实 provider |
+| [getting-started](docs/getting-started.md) | 在本地运行默认配置，再切换到真实 provider |
 | [architecture](docs/architecture.md) | 分层结构、四种链路如何统一到同一接口、模块接口、集成约定 |
 | [specs/](docs/specs/) | 规范 00–06（契约本体）；代码注释中的"spec 0X §y"均指此处 |
 | [first-audio-lab](docs/first-audio-lab.md) | 首音的分段测量、各项优化的位置与对照实验方法 |
@@ -188,10 +188,10 @@ uv run vak trace summarize my_agent/traces/*.jsonl           # 首音 P50 / P90 
 
 - **已验证**：
   - 1055 项 Python 测试与 17 项浏览器客户端 Node 测试全部通过。
-  - 四种链路在 mock 上游下覆盖了完整回合、打断、文本回合、开放麦判停和 WebSocket 续接。
+  - 四种链路均覆盖了完整回合、打断、文本回合、开放麦判停和 WebSocket 续接。
   - 四种链路均通过同一套上游一致性（conformance）测试。
 - **尚未在真实服务上验证**：
-  - 所有真实 provider 仅用模拟的 WebSocket 与 HTTP 服务端测试过。
+  - 各厂商 provider 目前只有协议层面的测试，尚未连接真实服务运行。
   - 尚未对真实上游运行 P0 探针，能力声明中的关键字段仍为 `code_read` 或 `unknown`。
   - 各 provider 的待验证事项见 [docs/providers.md](docs/providers.md)。
 - **未校准**：规范中标注为【建议值，需实测】的参数。

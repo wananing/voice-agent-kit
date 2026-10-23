@@ -1,6 +1,6 @@
 # 快速开始
 
-目标：30 分钟内用 mock 上游跑通一个完整回合，再换成真实 provider。
+目标：30 分钟内在本地跑通一个完整回合，再换成真实 provider。
 
 ## 1. 安装
 
@@ -17,7 +17,7 @@ uv sync --extra openai       # 可选：OpenAI 系 provider
 uv run vak new my_agent --pipeline cascade --profile A --mode ptt
 ```
 
-生成的目录只有五样东西：`agent.yaml`、`persona.yaml`、`state_schema.yaml`、`tools.py`、`cues/`。默认 provider 是 mock，不需要任何 API key。
+生成的目录只有五样东西：`agent.yaml`、`persona.yaml`、`state_schema.yaml`、`tools.py`、`cues/`。默认配置不连接任何外部服务，不需要 API key。
 
 ## 3. 跑起来
 
@@ -25,7 +25,7 @@ uv run vak new my_agent --pipeline cascade --profile A --mode ptt
 uv run vak run my_agent/agent.yaml
 ```
 
-浏览器打开 http://localhost:8765/ ，按住按钮说话，松开。mock STT 会固定识别成一句话，mock LLM 按脚本回复（含一次工具调用），mock TTS 合成提示音。你应该看到：转写回显、`tts.sentence_start` 逐句上屏、`turn.closed{completed}`。
+浏览器打开 http://localhost:8765/ ，按住按钮说话，松开。默认配置下识别结果和回复内容是预设的，第一轮回复包含一次工具调用，语音为提示音。你应该看到：转写回显、`tts.sentence_start` 逐句上屏、`turn.closed{completed}`。
 
 按住按钮打断正在播放的回复：客户端立即停播，网关依次发 `flush.start`、`flush.end`、`tts.stop{interrupted}`、`turn.closed{interrupted}`。
 

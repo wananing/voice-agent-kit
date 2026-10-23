@@ -56,61 +56,16 @@ uv run vak trace summarize my_agent/traces/*.jsonl
 | 6 | TTS 按 token 送入：一轮回复一个会话，由引擎切句 | 首段切出、TTS 首包 | `textout.py` 的 `_open_text_stream()`；provider 声明 `supports_text_stream` | 将 `vak/upstream/providers/tts/volcengine.py` 中的 `supports_text_stream` 改为 `False` |
 | 7 | LLM 关闭思考；方舟启用 `service_tier: fast` | LLM 首个输出 | `vak/upstream/providers/llm/vendors.py` | 在 `llm` 配置中设置 `thinking: true`，或 `extra_body: {service_tier: default}` |
 
-第 2、3 项只在真实网络上有效果，mock 上游没有建连开销，无法体现。
+第 2、3 项的收益来自建连开销，只能在真实网络上测量。
 
-## 4. 在 mock 上做对照实验
-
-mock 上游可以模拟固定的生成速度，因此不需要任何 API key 就能验证分段公式，并观察各项优化在理想条件下的作用。可用的配置项：
-
-| provider | 配置项 | 含义 |
-|---|---|---|
-| `llm: {type: mock}` | `chunk_delay_ms` | 每个流式片段（约 2 个汉字）的生成间隔，同时也是首个输出的耗时 |
-| `tts: {type: mock}` | `chunk_delay_ms` | 每个 100 ms 音频块的合成耗时；设为 100 即实时率 1 |
-| `tts: {type: mock}` | `text_stream: true` | 模拟按 token 送入的 TTS：一轮回复一个文本流，引擎在句末标点处切句 |
-
-示例配置：
-
-```yaml
-providers:
-  stt:
-    type: mock
-    transcript: 今天天气怎么样
-  llm:
-    type: mock
-    chunk_delay_ms: 40
-  tts:
-    type: mock
-    chunk_delay_ms: 100
-    # text_stream: true
-tuning: {}            # 对照组改为 {upstream.tts_lookahead: 0}
-```
-
-### 4.1 实测结果【本机实测，mock 模拟】
-
-- **条件**：2026-10-17；WSL2，Python 3.12；按键模式，每回合说话 600 ms。
-- **样本**：每组 6 个回合，第一个回合是工具回合，不计入；表中为其余 5 个普通回合的中位数。
-- **回复**：mock 默认脚本。5 个普通回合中有 4 个回复"好的，我在。"，另一个回复"好的，还有别的吗？我在听。"。
-
-| 组别 | `llm_ms` | `first_segment_ms` | `tts_start_ms` | 有内容 |
-|---|---|---|---|---|
-| A 按句送 TTS，预取 1 句（默认） | 41 | 82 | 184 | 226 |
-| B 按句送 TTS，关闭预取 | 41 | 82 | 184 | 225 |
-| C 按 token 送 TTS | 41 | 0 | 183 | 225 |
-
-### 4.2 解读
-
-1. **分段公式成立。** "有内容" 226 ms ≈ STT 定稿约 2 ms + `tts_start_ms` 184 ms + `llm_ms` 41 ms。其中 `tts_start_ms` 由两部分组成：首段切出 82 ms，加上 TTS 首包约 100 ms。首段切出的 82 ms 是这样来的："好的，我在。"共 6 个字，满足首段至少 6 字的规则后在句号处切出，需要 3 个片段；扣除首个片段本身，还要再等 2 个片段，即约 80 ms。
-2. **预取不影响首音。** A、B 两组的首音相同。预取解决的是第 2 句及以后的句间停顿：没有预取时，后一句要等前一句的音频全部发出后才开始合成。这一点由单元测试 `tests/unit/upstream/test_cascade.py::test_next_sentence_tts_starts_while_current_is_emitted_and_order_is_kept` 验证。
-3. **按 token 送入的收益取决于引擎。** C 组的首段切出降为 0，但 `tts_start_ms` 没有缩短，原因是 mock 引擎同样要等到句末标点才开始合成，切句等待只是从 vak 转移到了引擎内部。真实引擎在何时开始合成、是否比本地首段规则更早，需要在真实服务上测量，这也是火山 TTS 待验证的事项之一（[providers.md](providers.md) 已知问题表）。
-
-## 5. 在真实上游上做实验
+## 4. 在真实上游上做实验
 
 1. **选型。** 先用 `vak bench` 在自己的网络下比较候选厂商的各段耗时（[bench.md](bench.md)）。`vak bench` 测量的是单个环节，组合排序是估算值。
 2. **端到端测量。** 用选定的组合运行 agent，完成至少 20 个普通回合，再用 `vak trace summarize` 查看首音与分段。
 3. **逐项对照。** 每次只改动第 3 节表中的一项，其余条件保持不变，各收集同等数量的回合后比较分段的 P50 / P90。
 4. **记录条件。** 记录测试地点与网络、时间、厂商与模型、样本量，以及是否剔除了冷启动回合。数字对外引用时请附上这些条件，并按 [bench.md](bench.md) 的方式标注来源。
 
-## 6. 局限
+## 5. 局限
 
 - 分段只覆盖网关一侧。下行网络、设备缓冲和播放的耗时需要依靠客户端的播放回执（`latency.*_played_at_ms`），参考客户端已经支持，自研设备需要按 [protocol.md](protocol.md) 实现。
 - 只调用工具、没有文本的回复，不会记录 `first_segment_ms` 和 `tts_start_ms`。

@@ -9,7 +9,7 @@ uv run vak run examples/<name>/agent.yaml
 
 | 目录 | 链路 | profile / 模式 | provider | 需要 |
 |---|---|---|---|---|
-| `mock_playground` | 级联 | A · 按键 | mock | 无。先跑这个 |
+| `playground` | 级联 | A · 按键 | 离线演示配置，不连接外部服务 | 无。建议先运行此示例 |
 | `ptt_cascade_zh` | 级联 | A · 按键 | FunASR + OpenAI 兼容 LLM + CosyVoice | `FUNASR_URL`、`LLM_BASE_URL`、`LLM_MODEL`、`COSYVOICE_URL` |
 | `cloud_cascade` | 级联 | B · 开放麦 | OpenAI Realtime 流式转写 + OpenAI TTS + OpenAI 兼容 LLM | `OPENAI_API_KEY` |
 | `half_cascade` | 半级联 | B · 开放麦 | OpenAI Realtime 文本模态 + OpenAI TTS + 侧路 STT | `OPENAI_API_KEY` |

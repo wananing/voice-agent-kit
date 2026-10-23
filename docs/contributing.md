@@ -41,8 +41,8 @@ node --test clients/web/              # 浏览器客户端的测试
 | 工具层（规范 03） | `vak/core/tools/` | `tests/unit/tools/` |
 | 上下文与会话（规范 05） | `vak/core/context/` | `tests/unit/context/` |
 | trace 与评测（规范 06） | `vak/core/trace/`、`vak/eval/`、`schemas/trace.schema.json` | `tests/unit/trace/`、`tests/unit/eval/` |
-| 链路与 mock（规范 04） | `vak/upstream/pipelines/`、`vak/upstream/mirror.py`、`vak/upstream/providers/mock.py`、`vak/upstream/capabilities/mock*.yaml` | `tests/unit/upstream/`、`tests/conformance/` |
-| 真实 provider | `vak/upstream/providers/`（mock 除外）、`vak/upstream/capabilities/*.yaml`、`vak/probes/`、`docs/providers.md` | `tests/unit/providers/` |
+| 链路与测试替身（规范 04） | `vak/upstream/pipelines/`、`vak/upstream/mirror.py`、`vak/upstream/providers/mock.py`、`vak/upstream/capabilities/mock*.yaml` | `tests/unit/upstream/`、`tests/conformance/` |
+| 真实 provider | `vak/upstream/providers/`（`mock.py` 除外）、`vak/upstream/capabilities/*.yaml`、`vak/probes/`、`docs/providers.md` | `tests/unit/providers/` |
 | 集成（session、gateway、agent、cli、模板、示例、客户端） | `vak/core/session.py`、`vak/core/gateway.py`、`vak/core/proxy.py`、`vak/agent.py`、`vak/config.py`、`vak/cli.py`、`templates/`、`examples/`、`clients/` | `tests/integration/`（`harness.py` 提供 loopback 客户端） |
 
 ## 3. 代码约定

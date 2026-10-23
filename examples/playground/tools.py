@@ -1,4 +1,4 @@
-"""Tools for mock_playground.
+"""Tools for playground.
 
 Each function is a tool. Metadata on the decorator is the registry entry
 (spec 03 §2.1); the kit computes the speaking route (A0–A3) from

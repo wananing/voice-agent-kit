@@ -1,5 +1,5 @@
 # voice-agent-kit agent 配置。字段说明见 docs/architecture.md §6。
-name: mock_playground
+name: playground
 profile: A        # A 无屏设备 / B 有屏 App
 mode: ptt              # ptt 按键 / open_mic 开放麦（需要客户端 AEC）
 pipeline: cascade      # cascade / half_cascade / s2s / full_duplex

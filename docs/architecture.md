@@ -44,7 +44,7 @@
 │ capabilities/  能力声明 schema · 保守值 · 各 provider 的 yaml               │
 │ pipelines/  cascade · half_cascade · s2s · full_duplex  ← 四种链路在这里    │
 │ providers/  openai_realtime · dashscope_realtime · funasr · cosyvoice ·    │
-│             openai_compat_llm · openai_stt / openai_tts · moshi · mock      │
+│             openai_compat_llm · openai_stt / openai_tts · moshi             │
 └───────────────────────────────────────────────────────────────────────┘
 ┌─ vak.audio ─┐ ┌─ vak.cue ─┐ ┌─ vak.eval ─┐ ┌─ vak.probes ─┐ ┌─ vak.cli ─┐
 │ VAD · 判停   │ │ 预合成库   │ │ L0 L1 judge │ │ P0 探针      │ │ new run    │
@@ -239,16 +239,16 @@ vak eval l0 cases/*.jsonl                            # 进程内决策评测
 6. **trace 字段只由定义方写**：`TracePort.write(turn_id, {...})` 的 key 必须在 `schemas/trace.schema.json` 里；收集器拒绝未知 key。
 7. **音频编码可协商**：规范 01 以 Opus 为准，脚手架 `hello` 另接受 `pcm16`，便于没有 libopus 的开发环境跑通；默认模板用 Opus（`opuslib`）。帧头布局不变。
 8. **所有"建议值"集中在 `vak/core/defaults.py`**，带规范出处注释；不散落在各模块。
-9. **mock provider 是一等公民**：`providers/mock.py` 能按脚本吐事件（含 cancel 后迟到 delta、工具调用、文本模态翻转），规范验收清单里能自动化的项全部在 `tests/conformance/` 对 mock 跑。
+9. **测试替身是一等公民**：`providers/mock.py` 能按脚本产生事件（含 cancel 后迟到 delta、工具调用、文本模态翻转），规范验收清单里能自动化的项全部在 `tests/conformance/` 中对它运行。
 10. **测试先于 provider**：真实 provider 的接入以通过 `tests/conformance/` 的共用行为测试为完成标准（规范 04 §7 第 5 条）。
 
 ## 8. v1 范围与里程碑
 
 | 里程碑 | 交付 | 完成标准 |
 |---|---|---|
-| **M1 内核** | `vak.core` 五个模块 + `vak.transport` + `vak.audio` 基础 + mock upstream + conformance 测试 | 规范 01/02/03 验收清单里不依赖真实上游和真实设备的项全部自动化并通过；mock 上跑通按键和开放麦两种模式的完整回合、打断、工具 A1/A3、断线续接 |
+| **M1 内核** | `vak.core` 五个模块 + `vak.transport` + `vak.audio` 基础 + 测试替身上游 + conformance 测试 | 规范 01/02/03 验收清单里不依赖真实上游和真实设备的项全部自动化并通过；跑通按键和开放麦两种模式的完整回合、打断、工具 A1/A3、断线续接 |
 | **M2 四条链路** | `pipelines/` 四个 + providers：openai_realtime（S2S 与半级联文本模态）、dashscope_realtime、funasr、cosyvoice、openai_compat_llm、openai_stt / openai_tts、moshi；每个 provider 一份能力声明；P0 探针 harness | 每个 provider 过 conformance；能力声明关键字段至少 `code_read`；`examples/` 五个示例能跑 |
-| **M3 开发者面** | `vak new` 模板、`clients/web` 参考客户端、`vak trace` / `vak eval`、getting-started 文档 | 新开发者按 getting-started 在 30 分钟内用 mock 跑通，再换一个真实 provider 跑通 |
+| **M3 开发者面** | `vak new` 模板、`clients/web` 参考客户端、`vak trace` / `vak eval`、getting-started 文档 | 新开发者按 getting-started 在 30 分钟内于本地跑通，再换一个真实 provider 跑通 |
 
 **状态（v0.1）**：M1 完成；M2 代码完成，provider 在 M2 列表之外还接了流式 STT（火山、百炼、OpenAI Realtime 转写、Deepgram、AssemblyAI）、方舟 / 百炼 LLM、火山 / 百炼流式 TTS，但真实 provider 都只有协议级单测，未对真实上游跑 conformance 和探针；M3 完成（`vak new/run/probe/trace/eval`、浏览器客户端、getting-started）。`vak eval l1` 目前只校验脚本格式，跑脚本要自己绑 `SessionDriver`（`tests/integration/harness.py` 是现成的 loopback 版本）。
 

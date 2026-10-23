@@ -1,4 +1,4 @@
-# mock_playground
+# playground
 
 由 `vak new` 生成。目录：
 
